@@ -15,7 +15,7 @@ import java.util.function.Predicate;
  */
 public class ImgExtractor extends Thread{
     private BlockingQueue<Content> contentQueueIn;
-    private BlockingQueue<URL> urlQueueOut=new ArrayBlockingQueue<URL>(100);
+    private BlockingQueue<URL> urlQueueOut=new ArrayBlockingQueue<>(100);
     private Consumer<Object> uiImgFound;
 
     private HtmlImgIterator htmlImgIterator;
@@ -44,6 +44,7 @@ public class ImgExtractor extends Thread{
     @Override
     public void run() {
         while (true){
+            if (isInterrupted()) return;
             try {
                 Content content=contentQueueIn.take();
                 htmlImgIterator.setIn(content);
