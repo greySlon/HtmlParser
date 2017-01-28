@@ -35,9 +35,9 @@ public class ImgLoader extends Thread {
     @Override
     public void run() {
         while (true) {
+            if(isInterrupted()) return;
             long fileSize=0;
             try {
-                if(isInterrupted()) return;
                 URL url = urlQueueIn.take();
                 String startName = url.toString();
                 String newName = sb.append(startName.hashCode())
