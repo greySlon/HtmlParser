@@ -2,11 +2,9 @@ package com.abinail.filters;
 
 import com.abinail.interfaces.HtmlIterable;
 import com.abinail.model.Content;
-import com.sun.javafx.fxml.builder.URLBuilder;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -18,7 +16,8 @@ import java.util.regex.Pattern;
 public class HtmlLinkIterator implements HtmlIterable{
     private Pattern pattern = Pattern.compile("(?<=<a.{1,20}href[^\"]{1,4}\"\\s{0,3})[^\"]+");
     private Pattern ampPattern = Pattern.compile("&amp;");
-    private Pattern rootPattern = Pattern.compile("^\\.\\/|#.*");
+    private Pattern hashPattern = Pattern.compile("#.*");
+    private Pattern kostili=Pattern.compile("/\\./|/\\.\\./");
     private Pattern qPattern=Pattern.compile("/&");
 //    private Pattern hashPattern=Pattern.compile("#.*");
 
@@ -35,6 +34,7 @@ public class HtmlLinkIterator implements HtmlIterable{
         this.predicates=predicates;
     }
     public HtmlLinkIterator(Predicate<String>[] predicates, String queryParamsToReplace) {
+        this(predicates);
         queryParamReplacer=new QueryParamReplacer(queryParamsToReplace);
     }
     @Override
@@ -46,10 +46,7 @@ public class HtmlLinkIterator implements HtmlIterable{
                     return getMatches();
                 } else {
                     if (getMatches()) {
-                        if (predicateTest(result))
-                            return this.hasNext();
-                        else
-                            return true;
+                        return !predicateTest(result)||this.hasNext();
                     } else {
                         return false;
                     }
@@ -85,15 +82,16 @@ public class HtmlLinkIterator implements HtmlIterable{
     private boolean getMatches() {
         if (matcher.find()) {
             try {
-                String href=matcher.group();
-//                System.err.println("*find1*"+href);
+                String href=matcher.group();//3dhostel.od.ua
                 URL url=new URL(baseUrl,href);
                 if(!url.getHost().equals(baseUrl.getHost())) throw new MalformedURLException();
 
                 result = url.toString();
+//                System.err.println("*find1*"+result);
                 result = ampPattern.matcher(result).replaceAll("&");
-                result=rootPattern.matcher(result).replaceAll("");
+                result= hashPattern.matcher(result).replaceAll("");
                 result=qPattern.matcher(result).replaceAll("?");
+                result=kostili.matcher(result).replaceAll("/");
                 if (queryParamReplacer != null)
                     result = queryParamReplacer.removeParam(result);
 //                System.err.println("*find2*"+result);
@@ -103,5 +101,10 @@ public class HtmlLinkIterator implements HtmlIterable{
             return true;
         } else
             return false;
+    }
+    public static void main(String[]a) throws  MalformedURLException{
+        URL base=new URL("http://qwe.com/f1/");
+        System.out.println(new URL(base,"./dfdf?c=f#rg").getFile());
+        System.out.println(new URL(base,"./dfdf?c=f#rg").toString());
     }
 }

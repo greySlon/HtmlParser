@@ -45,6 +45,8 @@ public class ViewController {
     Label linkTotalTextField;
 
     @FXML
+    TextField matchesTextField;
+    @FXML
     Label imgLoadedLabel;
     @FXML
     Label imgLoadedSizeLabel;
@@ -172,7 +174,7 @@ public class ViewController {
         linkExtractor.setUiLinkProcessed(uiChange::upLinkProcessed);
 
         if (imgLoading) {
-            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut, null);
+            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut, matchesTextField.getText());
             imgExtractor.setUiImgFound(uiChange::upImgFound);
             imgExtractor.start();
 

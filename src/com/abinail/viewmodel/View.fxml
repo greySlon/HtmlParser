@@ -86,7 +86,7 @@
                <children>
                   <VBox prefHeight="70.0" prefWidth="530.0" spacing="5.0">
                      <children>
-                        <TextField />
+                        <TextField fx:id="matchesTextField" promptText="sequences contained in image adress(separated with space)" />
                         <HBox alignment="TOP_RIGHT" spacing="5.0">
                            <children>
                               <Label fx:id="imgFoundLabel" />
