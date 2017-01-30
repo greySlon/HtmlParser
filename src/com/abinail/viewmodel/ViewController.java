@@ -76,7 +76,7 @@ public class ViewController {
         htmlLoader.stop();
         linkExtractor.interrupt();
         saveSitemap();
-        if(!imgLoading)
+        if (!imgLoading)
             new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
     }
 
@@ -88,7 +88,7 @@ public class ViewController {
     }
 
     private void saveSitemap() {
-        File file=new File(folderToSave,"sitemap.xml");
+        File file = new File(folderToSave, "sitemap.xml");
         try {
             StringBuilder sb = new StringBuilder(200);
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));

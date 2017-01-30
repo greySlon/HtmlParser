@@ -16,7 +16,7 @@ public class Main extends Application {
         FXMLLoader loader=new FXMLLoader();
         loader.setLocation(getClass().getResource("viewmodel/View.fxml"));
         Parent root=loader.load();
-//config
+
         primaryStage.setTitle("Html Parser");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
