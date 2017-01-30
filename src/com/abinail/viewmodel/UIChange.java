@@ -15,6 +15,7 @@ public class UIChange {
     private int imgProcessed=0;
     private long imgLoadedSize = 0;
     private ViewController controller;
+    private boolean linkProcessingStoped=false;
 
     public UIChange(ViewController controller) {
         this.controller = controller;
@@ -37,8 +38,10 @@ public class UIChange {
             public void run() {
                 controller.linkProcessedTextField.setText(String.valueOf(++linkProcessed));
                 controller.linkProcessedBar.setProgress(linkProcessed / (double) linkTotal);
-                if (linkTotal == linkProcessed)
+                if (linkTotal == linkProcessed) {
                     controller.stopLinkProcessing();
+                    linkProcessingStoped=true;
+                }
             }
         });
     }
@@ -57,7 +60,7 @@ public class UIChange {
                     @Override
                     public void run() {
                         controller.imgLoadedProgress.setProgress(++imgProcessed/(double)imgFound);
-                        if(imgProcessed==imgFound)
+                        if(linkProcessingStoped && imgProcessed==imgFound)
                             controller.stopImgLoading();
                     }
                 });

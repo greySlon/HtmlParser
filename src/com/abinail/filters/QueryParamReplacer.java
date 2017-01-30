@@ -9,16 +9,16 @@ public class QueryParamReplacer {
     private Pattern pattern;
 
     public QueryParamReplacer(String queryParamsToRemove) {
-        if (queryParamsToRemove != null && !queryParamsToRemove.isEmpty()){
-            StringBuilder patternStringBuilder=new StringBuilder(100);
+        if (queryParamsToRemove != null && !queryParamsToRemove.isEmpty()) {
+            StringBuilder patternStringBuilder = new StringBuilder(100);
             String[] queries = queryParamsToRemove.split(" ");
-            for (int i = 0; i < queries.length; i++) {
-                String param=queries[i];
-                if(param.isEmpty())
-                    continue;
-                patternStringBuilder.append("(?<=\\?)").append(param).append("[^\\s\\&]*(\\&)?|(?<=\\&)").append(param).append("[^\\s\\&]*(\\&)?");
-                if(i<queries.length-1)
-                    patternStringBuilder.append("|");
+
+            for (String param : queries) {
+                if (!param.isEmpty()) {
+                    if (patternStringBuilder.length() > 0) patternStringBuilder.append("|");
+                    patternStringBuilder.append("(?<=\\?)").append(param).append("[^\\s\\&]*(\\&)?|(?<=\\&)")
+                            .append(param).append("[^\\s\\&]*(\\&)?");
+                }
             }
             pattern = Pattern.compile(patternStringBuilder.toString(), Pattern.CASE_INSENSITIVE);
         }
