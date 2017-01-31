@@ -12,25 +12,22 @@ import java.util.concurrent.*;
 /**
  * Created by Sergii on 25.01.2017.
  */
-public class HtmlLoader implements Runnable{
+public class HtmlLoader implements Runnable {
     private Queue<Link> linkQueueIn;
     private int nThreads;
-
-    private BlockingQueue<Content> contentQueueOut =new ArrayBlockingQueue<Content>(50);
     private ExecutorService exec;
+    private BlockingQueue<Content> contentQueueOut = new ArrayBlockingQueue<Content>(50);
 
     public HtmlLoader(GettingQueue<Link> gettingQueueIn, int nThreads) {
         this.linkQueueIn = gettingQueueIn.getQueue();
-        this.nThreads =nThreads;
-        if (nThreads>0) {
-            this.exec = Executors.newFixedThreadPool(nThreads);
-        }
+        this.nThreads = (nThreads > 0) ? nThreads : 1;
+        this.exec = Executors.newFixedThreadPool(nThreads);
     }
 
     @Override
     public void run() {
         Link link = linkQueueIn.poll();
-        if(link!=null) {
+        if (link != null) {
             URL url = link.url;
             try {
                 StringBuilder sb = new StringBuilder(5000);
@@ -39,23 +36,23 @@ public class HtmlLoader implements Runnable{
                 }
                 Content content = new Content(url, sb.toString());
                 contentQueueOut.put(content);
-//                System.err.println(Thread.currentThread().getName()+"**"+content.url.toString());
                 link.setOk(true);
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         exec.execute(this);
     }
 
-    public void start(){
+    public void start() {
         for (int i = 0; i < nThreads; i++) {
             exec.execute(this);
         }
     }
-    public void stop(){
+
+    public void stop() {
         exec.shutdownNow();
     }
 

@@ -3,6 +3,9 @@ package com.abinail.viewmodel;
 import com.abinail.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -147,7 +150,7 @@ public class ViewController {
     }
 
     @FXML
-    public void handleEndpointInput() {
+    public void handleHostInput() {
         host = domainTextField.getText();
         if (host != null && !"".equals(host)) {
             protocol = protocolComboBox.getValue().toString();
@@ -170,11 +173,15 @@ public class ViewController {
 
         htmlLoader = new HtmlLoader(linkContainer::getLinkQueueOut, 4);
 
-        linkExtractor = new LinkExtractor(htmlLoader::getContentQueueOut, linkContainer, paramTextField.getText(), imgLoading);
+        linkExtractor = new LinkExtractor(htmlLoader::getContentQueueOut, linkContainer);
+        linkExtractor.setQueryParamToReplace(paramTextField.getText());
         linkExtractor.setUiLinkProcessed(uiChange::upLinkProcessed);
 
         if (imgLoading) {
-            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut, matchesTextField.getText());
+            linkExtractor.enableContentQueueOut();
+
+            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut);
+            imgExtractor.setStringToMatch(matchesTextField.getText());
             imgExtractor.setUiImgFound(uiChange::upImgFound);
             imgExtractor.start();
 

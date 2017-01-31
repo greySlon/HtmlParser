@@ -9,4 +9,6 @@ import java.net.MalformedURLException;
  */
 public interface HtmlIterable extends Iterable<String> {
     void setIn(Content source) throws MalformedURLException;
+    default void setAllowed(String allowed){}
+    default void setDisalowed(String disallowed){}
 }

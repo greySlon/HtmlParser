@@ -64,8 +64,8 @@
          <children>
             <HBox spacing="5.0">
                <children>
-                  <ComboBox fx:id="protocolComboBox" onAction="#handleEndpointInput" prefWidth="150.0" promptText="protocol" />
-                  <TextField fx:id="domainTextField" onKeyReleased="#handleEndpointInput" promptText="domain name" />
+                  <ComboBox fx:id="protocolComboBox" onAction="#handleHostInput" prefWidth="150.0" promptText="protocol" />
+                  <TextField fx:id="domainTextField" onKeyReleased="#handleHostInput" promptText="domain name" />
                </children>
                <VBox.margin>
                   <Insets />
@@ -86,7 +86,7 @@
                <children>
                   <VBox prefHeight="70.0" prefWidth="530.0" spacing="5.0">
                      <children>
-                        <TextField fx:id="matchesTextField" promptText="sequences contained in image adress(separated with space)" />
+                        <TextField fx:id="matchesTextField" promptText="sequences contained in image adress(separated with space):  folder1 partOfPictureName" />
                         <HBox alignment="TOP_RIGHT" spacing="5.0">
                            <children>
                               <Label fx:id="imgFoundLabel" />

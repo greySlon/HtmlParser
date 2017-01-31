@@ -6,7 +6,6 @@ import com.abinail.filters.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -22,7 +21,7 @@ public class LinkExtractor extends Thread {
     private BlockingQueue<Content> contentQueueOut;
     private HtmlIterable htmlIterable;
 
-    private Predicate<String>[] filters = (Predicate<String>[]) Arrays.asList(new DocFilter(), new ImgFilter()).toArray();
+    private Predicate<String> filter = new DocFilter().and(new ImgFilter());
 
     private Consumer<Object> uiLinkProcessed;
 
@@ -30,27 +29,19 @@ public class LinkExtractor extends Thread {
         this.uiLinkProcessed = uiLinkProcessed;
     }
 
-    public LinkExtractor(
-            GettingQueue<Content> gettingQueueIn,
-            Set<Link> linkSetOut,
-            String queryParamsToReplace) {
-        this(gettingQueueIn, linkSetOut, queryParamsToReplace, false);
-    }
-
-    public LinkExtractor(
-            GettingQueue<Content> gettingQueueIn,
-            Set<Link> linkSetOut,
-            String queryParamsToReplace,
-            boolean contentOueueOut) {
+    public LinkExtractor(GettingQueue<Content> gettingQueueIn, Set<Link> linkSetOut) {
         this.contentQueueIn = ((BlockingQueue<Content>) gettingQueueIn.getQueue());
         this.linkSetOut = linkSetOut;
-        if (queryParamsToReplace == null || queryParamsToReplace.isEmpty())
-            htmlIterable = new HtmlLinkIterator(filters);
-        else
-            htmlIterable = new HtmlLinkIterator(filters, queryParamsToReplace);
-        if (contentOueueOut)
-            this.contentQueueOut = new ArrayBlockingQueue<Content>(100);
+        htmlIterable = new HtmlLinkIterator(filter);
         this.setDaemon(true);
+    }
+
+    public void setQueryParamToReplace(String queryParamsToReplace) {
+        htmlIterable.setDisalowed(queryParamsToReplace);
+    }
+
+    public void enableContentQueueOut() {
+        this.contentQueueOut = new ArrayBlockingQueue<Content>(100);
     }
 
     public BlockingQueue<Content> getContentQueueOut() {
