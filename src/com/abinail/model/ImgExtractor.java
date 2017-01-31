@@ -20,7 +20,6 @@ public class ImgExtractor extends Thread {
     private BlockingQueue<Content> contentQueueIn;
     private BlockingQueue<URL> urlQueueOut = new ArrayBlockingQueue<>(100);
     private Consumer<Object> uiImgFound;
-    private Predicate<String> predicate;
 
     private HtmlImgIterator htmlImgIterator;
 
@@ -29,21 +28,13 @@ public class ImgExtractor extends Thread {
     }
 
     public ImgExtractor(GettingQueue<Content> contentQueueIn) {
-        this(contentQueueIn, null);
-
+        this.contentQueueIn = (BlockingQueue<Content>) contentQueueIn.getQueue();
+        this.htmlImgIterator = new HtmlImgIterator();
+        this.setDaemon(true);
     }
 
-    public ImgExtractor(GettingQueue<Content> contentQueueIn, String containString) {
-        this.contentQueueIn=(BlockingQueue<Content>) contentQueueIn.getQueue();
-        if (containString != null && !containString.isEmpty()) {
-            Predicate<String>[] predicates = (Predicate<String>[]) Arrays.asList(
-                    new ContainStringFilter(containString).negate()
-            ).toArray();
-            this.htmlImgIterator = new HtmlImgIterator(predicates);
-        } else {
-            this.htmlImgIterator = new HtmlImgIterator();
-        }
-        this.setDaemon(true);
+    public void setStringToMatch(String containString) {
+        htmlImgIterator.setAllowed(containString);
     }
 
     public BlockingQueue<URL> getUrlQueueOut() {
