@@ -3,9 +3,6 @@ package com.abinail.viewmodel;
 import com.abinail.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -174,18 +171,19 @@ public class ViewController {
         htmlLoader = new HtmlLoader(linkContainer::getLinkQueueOut, 4);
 
         linkExtractor = new LinkExtractor(htmlLoader::getContentQueueOut, linkContainer);
-        linkExtractor.setQueryParamToReplace(paramTextField.getText());
-        linkExtractor.setUiLinkProcessed(uiChange::upLinkProcessed);
+        linkExtractor.setDisallowed(paramTextField.getText());
+        linkExtractor.setProcessEventHandler(uiChange::upLinkProcessed);
 
         if (imgLoading) {
-            linkExtractor.enableContentQueueOut();
+            linkExtractor.enableQueueOut();
 
-            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut);
-            imgExtractor.setStringToMatch(matchesTextField.getText());
-            imgExtractor.setUiImgFound(uiChange::upImgFound);
+            imgExtractor = new ImgExtractor(linkExtractor::getQueueOut);
+            imgExtractor.setAllowed(matchesTextField.getText());
+            imgExtractor.enableQueueOut();
+            imgExtractor.setProcessEventHandler(uiChange::upImgFound);
             imgExtractor.start();
 
-            imgLoader = new ImgLoader(imgExtractor::getUrlQueueOut, folderToSave);
+            imgLoader = new ImgLoader(imgExtractor::getQueueOut, folderToSave);
             imgLoader.setUiImgLoaded(uiChange::upImgLoaded);
             imgLoader.setUiImgProcessed(uiChange::upImgProcessed);
             imgLoader.start();
