@@ -10,13 +10,18 @@ import java.util.function.Consumer;
 /**
  * Created by Sergii on 01.02.2017.
  */
-abstract public class ExtractorHtml<T, U> extends Thread {
+abstract public class HtmlExtractor<T, U> extends Thread {
     protected BlockingQueue<T> queueIn;
     protected BlockingQueue<U> queueOut;
-    protected HtmlIterable htmlIterable;
-    protected Consumer<Object> processEventHandler;
+    protected BlockingQueue<T> queuePassThrough;
+    protected HtmlIterable<U> htmlIterable;
 
-    abstract public void extract(T t) throws MalformedURLException;
+    public HtmlExtractor(BlockingQueue<T> queueIn) {
+        this.queueIn = queueIn;
+        queueOut=new ArrayBlockingQueue<U>(100);
+    }
+
+    abstract public void extract(T t) throws MalformedURLException, InterruptedException;
 
     public void setAllowed(String allowed) {
     }
@@ -24,12 +29,8 @@ abstract public class ExtractorHtml<T, U> extends Thread {
     public void setDisallowed(String disallowed) {
     }
 
-    public void setProcessEventHandler(Consumer<Object> processEventHandler) {
-        this.processEventHandler = processEventHandler;
-    }
-
-    public void enableQueueOut() {
-        this.queueOut = new ArrayBlockingQueue<U>(100);
+    public void enableQueuePassTrough() {
+        this.queuePassThrough = new ArrayBlockingQueue<T>(100);
     }
 
     public BlockingQueue<U> getQueueOut() {
@@ -38,5 +39,9 @@ abstract public class ExtractorHtml<T, U> extends Thread {
         } else {
             throw new RuntimeException("No queue created");
         }
+    }
+
+    public BlockingQueue<T> getQueuePassThrough() {
+        return queuePassThrough;
     }
 }

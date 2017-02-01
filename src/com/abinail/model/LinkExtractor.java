@@ -1,24 +1,24 @@
 package com.abinail.model;
 
-import com.abinail.interfaces.ExtractorHtml;
-import com.abinail.interfaces.GettingQueue;
+import com.abinail.interfaces.HtmlExtractor;
 import com.abinail.filters.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 24.01.2017.
  */
 
-public class LinkExtractor extends ExtractorHtml<Content,Content> {
-    private Set<Link> linkSetOut;
-
-    public LinkExtractor(GettingQueue<Content> gettingQueueIn, Set<Link> linkSetOut) {
-        this.queueIn = ((BlockingQueue<Content>) gettingQueueIn.getQueue());
-        this.linkSetOut = linkSetOut;
+public class LinkExtractor extends HtmlExtractor<Content,URL> {
+    protected Consumer<Integer> upLinkProcessedHandler;
+    public void setUpLinkProcessedHandler(Consumer<Integer> upLinkProcessedHandler) {
+        this.upLinkProcessedHandler = upLinkProcessedHandler;
+    }
+    public LinkExtractor(BlockingQueue<Content> queueIn) {
+        super(queueIn);
         htmlIterable = new HtmlLinkIterator();
         this.setDaemon(true);
     }
@@ -29,12 +29,15 @@ public class LinkExtractor extends ExtractorHtml<Content,Content> {
     }
 
     @Override
-    public void extract(Content content) throws MalformedURLException{
+    public void extract(Content content) throws MalformedURLException, InterruptedException{
         htmlIterable.setIn(content);
-        for (String s : htmlIterable) {
-            URL url = new URL(s);
-            Link link = new Link(url);
-            linkSetOut.add(link);
+        int count=0;
+        for (URL url : htmlIterable) {
+            queueOut.put(url);
+            count++;
+        }
+        if (upLinkProcessedHandler != null) {
+            upLinkProcessedHandler.accept(count);
         }
     }
 
@@ -44,11 +47,10 @@ public class LinkExtractor extends ExtractorHtml<Content,Content> {
             if (isInterrupted()) return;
             try {
                 Content content = queueIn.take();
-                if (queueOut != null)
-                    queueOut.put(content);
+                if(queuePassThrough!=null){
+                    queuePassThrough.put(content);
+                }
                 extract(content);
-                if (processEventHandler != null)
-                    processEventHandler.accept(null);
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();

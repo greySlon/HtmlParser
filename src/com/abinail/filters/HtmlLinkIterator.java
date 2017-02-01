@@ -2,6 +2,7 @@ package com.abinail.filters;
 
 import com.abinail.interfaces.HtmlIterable;
 import com.abinail.model.Content;
+import com.abinail.model.Link;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,23 +14,21 @@ import java.util.regex.Pattern;
 /**
  * Created by Sergii on 24.01.2017.
  */
-public class HtmlLinkIterator implements HtmlIterable {
+public class HtmlLinkIterator implements HtmlIterable<URL> {
     private Pattern pattern = Pattern.compile("(?<=<a.{1,20}href[^\"]{1,4}\"\\s{0,3})[^\"]+");
     private Pattern ampPattern = Pattern.compile("&amp;");
     private Pattern hashPattern = Pattern.compile("#.*");
     private Pattern kostili = Pattern.compile("/\\./|/\\.\\./");
     private Pattern qPattern = Pattern.compile("/&");
 
-//    private URL host;
     private URL baseUrl;
 
     private Matcher matcher;
     private Predicate<String> filter = new DocFilter().and(new ImgFilter());
-    private String result;
+    private String resultStr;
+    private URL resultUrl;
     private BaseResolver baseResolver;
     private QueryParamReplacer queryParamReplacer;
-
-
 
     @Override
     public void setDisalowed(String disallowed) {
@@ -46,29 +45,25 @@ public class HtmlLinkIterator implements HtmlIterable {
                 if (filter == null) {
                     return getMatches();
                 } else {
-                    return getMatches() && (!filter.test(result) || this.hasNext());
+                    return getMatches() && (!filter.test(resultStr) || this.hasNext());
                 }
             }
 
             @Override
-            public String next() {
-                return result;
+            public URL next() {
+                return resultUrl;
             }
         };
     }
 
     @Override
     public void setIn(Content in) throws MalformedURLException {
-//        System.err.println("*urlContent*"+in.url.toString());
         if (baseResolver == null) {
-//            host = new URL(in.url.getProtocol(), in.url.getHost(), in.url.getPort(), "/");
             baseResolver = new BaseResolver();
         }
         matcher = pattern.matcher(in.content);
         baseUrl = baseResolver.getBaseUrl(in);
-//        System.err.println("*base*"+baseUrl.toString());
     }
-
 
     private boolean getMatches() {
         if (matcher.find()) {
@@ -77,13 +72,15 @@ public class HtmlLinkIterator implements HtmlIterable {
                 URL url = new URL(baseUrl, href);
                 if (!url.getHost().equals(baseUrl.getHost())) throw new MalformedURLException();
 
-                result = url.toString();
-                result = ampPattern.matcher(result).replaceAll("&");
-                result = hashPattern.matcher(result).replaceAll("");
-                result = qPattern.matcher(result).replaceAll("?");
-                result = kostili.matcher(result).replaceAll("/");
-                if (queryParamReplacer != null)
-                    result = queryParamReplacer.removeParam(result);
+                resultStr = url.toString();
+                resultStr = ampPattern.matcher(resultStr).replaceAll("&");
+                resultStr = hashPattern.matcher(resultStr).replaceAll("");
+                resultStr = qPattern.matcher(resultStr).replaceAll("?");
+                resultStr = kostili.matcher(resultStr).replaceAll("/");
+                if (queryParamReplacer != null) {
+                    resultStr = queryParamReplacer.removeParam(resultStr);
+                }
+                resultUrl=new URL(resultStr);
             } catch (MalformedURLException e) {
                 return getMatches();
             }
