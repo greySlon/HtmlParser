@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Sergii on 24.01.2017.
  */
-public class HtmlImgIterator implements HtmlIterable {
+public class HtmlImgIterator implements HtmlIterable<URL> {
     private Pattern pattern = Pattern.compile("(?<=<img.{1,20}src[^\"]{1,4}\"\\s{0,3})[^\"]+");
     private Pattern kostili = Pattern.compile("/./|/../");
 
@@ -22,7 +22,8 @@ public class HtmlImgIterator implements HtmlIterable {
 
     private Matcher matcher;
     private Predicate<String> filter;
-    private String result;
+    private String resultStr;
+    private URL resultUrl;
     private BaseResolver baseResolver;
 
     public HtmlImgIterator() {
@@ -49,13 +50,13 @@ public class HtmlImgIterator implements HtmlIterable {
                 if (filter == null) {
                     return getMatches();
                 } else {
-                    return getMatches() && (!filter.test(result) || this.hasNext());
+                    return getMatches() && (!filter.test(resultStr) || this.hasNext());
                 }
             }
 
             @Override
-            public String next() {
-                return result;
+            public URL next() {
+                return resultUrl;
             }
         };
     }
@@ -73,9 +74,10 @@ public class HtmlImgIterator implements HtmlIterable {
     private boolean getMatches() {
         if (matcher.find()) {
             try {
-                result = new URL(baseUrl, matcher.group()).toString();
-                result = kostili.matcher(result).replaceAll("/");
-                result = result.replace(" ", "%20");
+                resultStr = new URL(baseUrl, matcher.group()).toString();
+                resultStr = kostili.matcher(resultStr).replaceAll("/");
+                resultStr = resultStr.replace(" ", "%20");
+                resultUrl=new URL(resultStr);
             } catch (MalformedURLException e) {
                 return getMatches();
             }

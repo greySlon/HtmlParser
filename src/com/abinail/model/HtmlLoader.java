@@ -18,8 +18,8 @@ public class HtmlLoader implements Runnable {
     private ExecutorService exec;
     private BlockingQueue<Content> contentQueueOut = new ArrayBlockingQueue<Content>(50);
 
-    public HtmlLoader(GettingQueue<Link> gettingQueueIn, int nThreads) {
-        this.linkQueueIn = gettingQueueIn.getQueue();
+    public HtmlLoader(Queue<Link> linkQueueIn, int nThreads) {
+        this.linkQueueIn = linkQueueIn;
         this.nThreads = (nThreads > 0) ? nThreads : 1;
         this.exec = Executors.newFixedThreadPool(nThreads);
     }

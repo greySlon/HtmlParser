@@ -65,7 +65,11 @@ public class ViewController {
     private ImgExtractor imgExtractor;
     private ImgLoader imgLoader;
 
-    boolean imgLoading;
+    private boolean imgLoading;
+
+    public boolean isImgLoading() {
+        return imgLoading;
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -75,16 +79,13 @@ public class ViewController {
     void stopLinkProcessing() {
         htmlLoader.stop();
         linkExtractor.interrupt();
+        linkContainer.interrupt();
         saveSitemap();
-        if (!imgLoading)
-            new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
     }
 
     void stopImgLoading() {
         imgExtractor.interrupt();
         imgLoader.interrupt();
-        new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
-
     }
 
     private void saveSitemap() {
@@ -113,7 +114,10 @@ public class ViewController {
     }
 
     public void dispose() {
-        if (htmlLoader != null) htmlLoader.stop();
+        stopLinkProcessing();
+        if (imgLoading) {
+            stopImgLoading();
+        }
     }
 
     @FXML
@@ -166,30 +170,33 @@ public class ViewController {
         }
 
         linkContainer = new LinkContainer();
-        linkContainer.setUiConsumer(uiChange::upLinkTotal);
+        linkContainer.setUpLinkTotalHandler(uiChange::upLinkTotalUnique);
 
-        htmlLoader = new HtmlLoader(linkContainer::getLinkQueueOut, 4);
 
-        linkExtractor = new LinkExtractor(htmlLoader::getContentQueueOut, linkContainer);
+        htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
+
+        linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
         linkExtractor.setDisallowed(paramTextField.getText());
-        linkExtractor.setProcessEventHandler(uiChange::upLinkProcessed);
+        linkExtractor.setUpLinkProcessedHandler(uiChange::upLinkProcessed);
+
+        linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
         if (imgLoading) {
-            linkExtractor.enableQueueOut();
+            linkExtractor.enableQueuePassTrough();
 
-            imgExtractor = new ImgExtractor(linkExtractor::getQueueOut);
+            imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
             imgExtractor.setAllowed(matchesTextField.getText());
-            imgExtractor.enableQueueOut();
-            imgExtractor.setProcessEventHandler(uiChange::upImgFound);
+            imgExtractor.setUpImgFoundHandler(uiChange::upImgFound);
             imgExtractor.start();
 
-            imgLoader = new ImgLoader(imgExtractor::getQueueOut, folderToSave);
+            imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
             imgLoader.setUiImgLoaded(uiChange::upImgLoaded);
             imgLoader.setUiImgProcessed(uiChange::upImgProcessed);
             imgLoader.start();
         }
 
         linkContainer.add(new Link(new URL(protocol, host, "/")));
+        linkContainer.start();
         htmlLoader.start();
         linkExtractor.start();
 
@@ -201,7 +208,7 @@ public class ViewController {
     public void cancelButtonOnClick() {
         cancelButton.setDisable(true);
         dispose();
-//        new Alert(Alert.AlertType.INFORMATION, "Finished").showAndWait();
+        new Alert(Alert.AlertType.INFORMATION, "Canceled").showAndWait();
     }
 
 }

@@ -27,16 +27,17 @@ public class ImgLoader extends Thread {
         this.uiImgProcessed = uiImgProcessed;
     }
 
-    public ImgLoader(GettingQueue<URL> urlQueueIn, File folder) {
-        this.urlQueueIn = ((BlockingQueue<URL>) urlQueueIn.getQueue());
+    public ImgLoader(BlockingQueue<URL> queueIn, File folder) {
+        this.urlQueueIn = queueIn;
         this.folder = folder;
         this.setDaemon(true);
     }
+
     @Override
     public void run() {
         while (true) {
-            if(isInterrupted()) return;
-            long fileSize=0;
+            if (isInterrupted()) return;
+            long fileSize = 0;
             try {
                 URL url = urlQueueIn.take();
                 String startName = url.toString();
@@ -59,7 +60,7 @@ public class ImgLoader extends Thread {
                     if (uiImgLoaded != null)
                         uiImgLoaded.accept(fileSize);
                 }
-                if(uiImgProcessed!=null)
+                if (uiImgProcessed != null)
                     uiImgProcessed.accept(null);
             } catch (InterruptedException e) {
                 e.printStackTrace();
