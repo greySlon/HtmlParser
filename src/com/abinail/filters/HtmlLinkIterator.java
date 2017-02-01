@@ -20,22 +20,16 @@ public class HtmlLinkIterator implements HtmlIterable {
     private Pattern kostili = Pattern.compile("/\\./|/\\.\\./");
     private Pattern qPattern = Pattern.compile("/&");
 
-    private URL host;
+//    private URL host;
     private URL baseUrl;
 
     private Matcher matcher;
-    private Predicate<String> filter;
+    private Predicate<String> filter = new DocFilter().and(new ImgFilter());
     private String result;
     private BaseResolver baseResolver;
     private QueryParamReplacer queryParamReplacer;
 
-    public HtmlLinkIterator() {
-        this(null);
-    }
 
-    public HtmlLinkIterator(Predicate<String> filter) {
-        this.filter = filter;
-    }
 
     @Override
     public void setDisalowed(String disallowed) {
@@ -67,7 +61,7 @@ public class HtmlLinkIterator implements HtmlIterable {
     public void setIn(Content in) throws MalformedURLException {
 //        System.err.println("*urlContent*"+in.url.toString());
         if (baseResolver == null) {
-            host = new URL(in.url.getProtocol(), in.url.getHost(), in.url.getPort(), "/");
+//            host = new URL(in.url.getProtocol(), in.url.getHost(), in.url.getPort(), "/");
             baseResolver = new BaseResolver();
         }
         matcher = pattern.matcher(in.content);
