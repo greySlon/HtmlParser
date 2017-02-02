@@ -46,7 +46,6 @@ public class ImgLoader extends Thread {
                 sb.setLength(0);
                 File file = new File(folder, newName);
                 if (!file.exists()) {
-
                     BufferedInputStream bis = new BufferedInputStream(url.openStream());
                     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
 

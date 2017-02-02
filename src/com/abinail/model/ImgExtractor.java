@@ -14,9 +14,11 @@ import java.util.function.Consumer;
 
 public class ImgExtractor extends HtmlExtractor<Content, URL> {
     protected Consumer<Object> upImgFoundHandler;
+
     public void setUpImgFoundHandler(Consumer<Object> upImgFoundHandler) {
         this.upImgFoundHandler = upImgFoundHandler;
     }
+
     public ImgExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
         this.htmlIterable = new HtmlImgIterator();
