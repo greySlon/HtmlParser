@@ -8,8 +8,8 @@ import javafx.scene.control.Alert;
  */
 public class UIChange {
     private int linkUnique = 0;
-    private int linkNonUnique=0;
-    private int linkTotal=0;
+    private int linkNonUnique = 0;
+    private int linkTotal = 0;
     private int linkProcessed = 0;
 
     private int imgFound = 0;
@@ -25,13 +25,12 @@ public class UIChange {
 
     public void upLinkTotalUnique(String url) {
         Platform.runLater(() -> {
-            if(url!=null) {
+            if (url != null) {
                 controller.linkList.add(url);
                 controller.linkTotalTextField.setText(String.valueOf(++linkUnique));
                 controller.linkProcessedBar.setProgress(linkProcessed / (double) linkUnique);
-            }else{
+            } else {
                 linkNonUnique++;
-//                System.out.println("container");
                 checkStop();
             }
         });
@@ -39,24 +38,22 @@ public class UIChange {
 
     public void upLinkProcessed(int count) {
         Platform.runLater(() -> {
-            linkTotal+= count;
+            linkTotal += count;
             controller.linkProcessedTextField.setText(String.valueOf(++linkProcessed));
             controller.linkProcessedBar.setProgress(linkProcessed / (double) linkUnique);
-//            System.out.println("extractor");
             checkStop();
         });
     }
 
     private void checkStop() {
-//        System.out.println(String.format("linkProcessed %d linkTotal %d linkUnique %d linkNonUnique %d",
-//                linkProcessed, linkTotal, linkUnique,  linkNonUnique));
-        if (linkUnique == linkProcessed && linkTotal==(linkUnique+linkNonUnique)) {
+        if (linkUnique == linkProcessed && linkTotal == (linkUnique + linkNonUnique)) {
             controller.stopLinkProcessing();
             linkProcessingStoped = true;
-            if (!controller.isImgLoading())
-                new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
+            new Alert(Alert.AlertType.INFORMATION, "Processing links has done ").show();
+            chekStopImgProc();
         }
     }
+
 
     public void upImgFound(Object o) {
         Platform.runLater(() -> imgFound++);
@@ -65,11 +62,17 @@ public class UIChange {
     public void upImgProcessed(Object o) {
         Platform.runLater(() -> {
             controller.imgLoadedProgress.setProgress(++imgProcessed / (double) imgFound);
-            if (linkProcessingStoped && imgProcessed == imgFound) {
-                controller.stopImgLoading();
-                new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
-            }
+//            System.out.println(String.format("imgProcessed %d imgFound %d linkProcessingStoped ",
+//                    imgProcessed, imgFound)+linkProcessingStoped);
+            chekStopImgProc();
         });
+    }
+
+    private void chekStopImgProc() {
+        if (linkProcessingStoped && imgProcessed == imgFound) {
+            controller.stopImgLoading();
+            new Alert(Alert.AlertType.INFORMATION, "Loading images has done").show();
+        }
     }
 
     public void upImgLoaded(long size) {
@@ -81,8 +84,9 @@ public class UIChange {
     }
 
     public void resetCounters() {
-        imgLoadedSize = linkUnique = linkProcessed = imgLoaded = imgFound = imgProcessed = linkNonUnique=0;
-        linkTotal=1;
+        imgLoadedSize = linkUnique = linkProcessed = imgLoaded = imgFound = imgProcessed = linkNonUnique = 0;
+        linkTotal = 1;
+        linkProcessingStoped = false;
         controller.linkProcessedBar.setProgress(linkProcessed / (double) linkUnique);
         controller.imgLoadedProgress.setProgress(imgLoaded / (double) imgFound);
         controller.linkList.clear();

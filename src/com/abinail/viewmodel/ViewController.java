@@ -77,15 +77,15 @@ public class ViewController {
 
 
     void stopLinkProcessing() {
-        htmlLoader.stop();
-        linkExtractor.interrupt();
-        linkContainer.interrupt();
+        if(htmlLoader!=null)htmlLoader.stop();
+        if(linkExtractor!=null)linkExtractor.interrupt();
+        if(linkContainer!=null)linkContainer.interrupt();
         saveSitemap();
     }
 
     void stopImgLoading() {
-        imgExtractor.interrupt();
-        imgLoader.interrupt();
+        if(imgExtractor!=null)imgExtractor.interrupt();
+        if(imgLoader!=null)imgLoader.interrupt();
     }
 
     private void saveSitemap() {

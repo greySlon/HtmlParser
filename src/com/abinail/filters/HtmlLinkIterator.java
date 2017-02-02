@@ -2,7 +2,6 @@ package com.abinail.filters;
 
 import com.abinail.interfaces.HtmlIterable;
 import com.abinail.model.Content;
-import com.abinail.model.Link;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +23,7 @@ public class HtmlLinkIterator implements HtmlIterable<URL> {
     private URL baseUrl;
 
     private Matcher matcher;
-    private Predicate<String> filter = new DocFilter().and(new ImgFilter());
+    private Predicate<String> filter = new DocFilter().or(new ImgFilter()).negate();
     private String resultStr;
     private URL resultUrl;
     private BaseResolver baseResolver;
@@ -45,7 +44,7 @@ public class HtmlLinkIterator implements HtmlIterable<URL> {
                 if (filter == null) {
                     return getMatches();
                 } else {
-                    return getMatches() && (!filter.test(resultStr) || this.hasNext());
+                    return getMatches() && (filter.test(resultStr) || this.hasNext());
                 }
             }
 
