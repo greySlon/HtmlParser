@@ -9,12 +9,15 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.net.URL;
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader=new FXMLLoader();
-        loader.setLocation(getClass().getResource("viewmodel/View.fxml"));
+        URL url=getClass().getResource("/View.fxml");
+        loader.setLocation(url);
         Parent root=loader.load();
 
         primaryStage.setTitle("Html Parser");

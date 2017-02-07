@@ -24,7 +24,6 @@ public class QueryParamReplacer {
         }
     }
 
-
     public String removeParam(String s) {
         return pattern.matcher(s).replaceAll("");
     }

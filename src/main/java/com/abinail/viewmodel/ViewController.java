@@ -65,7 +65,11 @@ public class ViewController {
     private ImgExtractor imgExtractor;
     private ImgLoader imgLoader;
 
-    boolean imgLoading;
+    private boolean imgLoading;
+
+    public boolean isImgLoading() {
+        return imgLoading;
+    }
 
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -73,18 +77,15 @@ public class ViewController {
 
 
     void stopLinkProcessing() {
-        htmlLoader.stop();
-        linkExtractor.interrupt();
+        if(htmlLoader!=null)htmlLoader.stop();
+        if(linkExtractor!=null)linkExtractor.interrupt();
+        if(linkContainer!=null)linkContainer.interrupt();
         saveSitemap();
-        if (!imgLoading)
-            new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
     }
 
     void stopImgLoading() {
-        imgExtractor.interrupt();
-        imgLoader.interrupt();
-        new Alert(Alert.AlertType.INFORMATION, "Done").showAndWait();
-
+        if(imgExtractor!=null)imgExtractor.interrupt();
+        if(imgLoader!=null)imgLoader.interrupt();
     }
 
     private void saveSitemap() {
@@ -113,7 +114,10 @@ public class ViewController {
     }
 
     public void dispose() {
-        if (htmlLoader != null) htmlLoader.stop();
+        stopLinkProcessing();
+        if (imgLoading) {
+            stopImgLoading();
+        }
     }
 
     @FXML
@@ -147,7 +151,7 @@ public class ViewController {
     }
 
     @FXML
-    public void handleEndpointInput() {
+    public void handleHostInput() {
         host = domainTextField.getText();
         if (host != null && !"".equals(host)) {
             protocol = protocolComboBox.getValue().toString();
@@ -166,25 +170,33 @@ public class ViewController {
         }
 
         linkContainer = new LinkContainer();
-        linkContainer.setUiConsumer(uiChange::upLinkTotal);
+        linkContainer.setUpLinkTotalHandler(uiChange::upLinkTotalUnique);
 
-        htmlLoader = new HtmlLoader(linkContainer::getLinkQueueOut, 4);
 
-        linkExtractor = new LinkExtractor(htmlLoader::getContentQueueOut, linkContainer, paramTextField.getText(), imgLoading);
-        linkExtractor.setUiLinkProcessed(uiChange::upLinkProcessed);
+        htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
+
+        linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
+        linkExtractor.setDisallowed(paramTextField.getText());
+        linkExtractor.setUpLinkProcessedHandler(uiChange::upLinkProcessed);
+
+        linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
         if (imgLoading) {
-            imgExtractor = new ImgExtractor(linkExtractor::getContentQueueOut, matchesTextField.getText());
-            imgExtractor.setUiImgFound(uiChange::upImgFound);
+            linkExtractor.enableQueuePassTrough();
+
+            imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
+            imgExtractor.setAllowed(matchesTextField.getText());
+            imgExtractor.setUpImgFoundHandler(uiChange::upImgFound);
             imgExtractor.start();
 
-            imgLoader = new ImgLoader(imgExtractor::getUrlQueueOut, folderToSave);
+            imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
             imgLoader.setUiImgLoaded(uiChange::upImgLoaded);
             imgLoader.setUiImgProcessed(uiChange::upImgProcessed);
             imgLoader.start();
         }
 
         linkContainer.add(new Link(new URL(protocol, host, "/")));
+        linkContainer.start();
         htmlLoader.start();
         linkExtractor.start();
 
@@ -196,7 +208,7 @@ public class ViewController {
     public void cancelButtonOnClick() {
         cancelButton.setDisable(true);
         dispose();
-//        new Alert(Alert.AlertType.INFORMATION, "Finished").showAndWait();
+        new Alert(Alert.AlertType.INFORMATION, "Canceled").showAndWait();
     }
 
 }
