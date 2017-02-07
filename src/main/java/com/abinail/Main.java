@@ -14,7 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader=new FXMLLoader();
-        loader.setLocation(getClass().getResource("viewmodel/View.fxml"));
+        loader.setLocation(getClass().getResource("/View.fxml"));
         Parent root=loader.load();
 
         primaryStage.setTitle("Html Parser");

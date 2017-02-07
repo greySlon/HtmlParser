@@ -62,8 +62,6 @@ public class UIChange {
     public void upImgProcessed(Object o) {
         Platform.runLater(() -> {
             controller.imgLoadedProgress.setProgress(++imgProcessed / (double) imgFound);
-//            System.out.println(String.format("imgProcessed %d imgFound %d linkProcessingStoped ",
-//                    imgProcessed, imgFound)+linkProcessingStoped);
             chekStopImgProc();
         });
     }

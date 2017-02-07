@@ -67,10 +67,6 @@ public class ViewController {
 
     private boolean imgLoading;
 
-    public boolean isImgLoading() {
-        return imgLoading;
-    }
-
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -79,8 +75,10 @@ public class ViewController {
     void stopLinkProcessing() {
         if(htmlLoader!=null)htmlLoader.stop();
         if(linkExtractor!=null)linkExtractor.interrupt();
-        if(linkContainer!=null)linkContainer.interrupt();
-        saveSitemap();
+        if(linkContainer!=null) {
+            linkContainer.interrupt();
+            saveSitemap();
+        }
     }
 
     void stopImgLoading() {
