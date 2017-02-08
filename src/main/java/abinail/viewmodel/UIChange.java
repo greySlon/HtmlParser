@@ -1,4 +1,4 @@
-package com.abinail.viewmodel;
+package abinail.viewmodel;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;

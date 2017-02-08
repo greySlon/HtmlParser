@@ -1,6 +1,6 @@
-package com.abinail.filters;
+package abinail.filters;
 
-import com.abinail.model.Content;
+import abinail.model.Content;
 
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package com.abinail.model;
+package abinail.model;
 
 import java.net.URL;
 

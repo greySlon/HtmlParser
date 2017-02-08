@@ -1,6 +1,6 @@
-package com.abinail;
+package abinail;
 
-import com.abinail.viewmodel.ViewController;
+import abinail.viewmodel.ViewController;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -14,7 +14,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader loader=new FXMLLoader();
-        loader.setLocation(getClass().getResource("/View.fxml"));
+        loader.setLocation(getClass().getResource("viewmodel/View.fxml"));
         Parent root=loader.load();
 
         primaryStage.setTitle("Html Parser");

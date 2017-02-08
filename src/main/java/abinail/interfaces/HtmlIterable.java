@@ -1,6 +1,6 @@
-package com.abinail.interfaces;
+package abinail.interfaces;
 
-import com.abinail.model.Content;
+import abinail.model.Content;
 
 import java.net.MalformedURLException;
 

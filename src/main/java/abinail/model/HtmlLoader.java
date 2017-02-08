@@ -1,6 +1,4 @@
-package com.abinail.model;
-
-import com.abinail.interfaces.GettingQueue;
+package abinail.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,6 +1,4 @@
-package com.abinail.filters;
-
-import sun.dc.pr.PathStroker;
+package abinail.filters;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;

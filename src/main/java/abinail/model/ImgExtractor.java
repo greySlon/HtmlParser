@@ -1,7 +1,7 @@
-package com.abinail.model;
+package abinail.model;
 
-import com.abinail.filters.HtmlImgIterator;
-import com.abinail.interfaces.HtmlExtractor;
+import abinail.filters.HtmlImgIterator;
+import abinail.interfaces.HtmlExtractor;
 
 import java.net.MalformedURLException;
 import java.net.URL;

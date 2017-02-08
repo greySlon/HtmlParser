@@ -1,11 +1,8 @@
-package com.abinail.interfaces;
-
-import com.abinail.model.Content;
+package abinail.interfaces;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 01.02.2017.

@@ -1,7 +1,6 @@
-package com.abinail.interfaces;
+package abinail.interfaces;
 
 import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by Sergii on 26.01.2017.

@@ -1,6 +1,6 @@
-package com.abinail.viewmodel;
+package abinail.viewmodel;
 
-import com.abinail.model.*;
+import abinail.model.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

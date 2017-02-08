@@ -1,4 +1,4 @@
-package com.abinail.filters;
+package abinail.filters;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
