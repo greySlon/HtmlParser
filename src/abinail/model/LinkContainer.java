@@ -25,33 +25,35 @@ public class LinkContainer extends ConcurrentSkipListSet<Link> {
         this.queueIn = queueIn;
     }
 
-    public void interrupt(){
+    public void interrupt() {
         selfThread.interrupt();
     }
+
     public void start() {
-        selfThread = new Thread(()-> {
-                while (true) {
-                    try {
-                        URL url = queueIn.take();
-                        add(new Link(url));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        return;
-                    }
+        selfThread = new Thread(() -> {
+            while (true) {
+                try {
+                    URL url = queueIn.take();
+                    add(new Link(url));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return;
                 }
+            }
         });
         selfThread.setDaemon(true);
         selfThread.start();
     }
+
     @Override
     public boolean add(Link link) {
         if (super.add(link)) {
-            if(upLinkTotalHandler !=null)
+            if (upLinkTotalHandler != null)
                 upLinkTotalHandler.accept(link.url.getFile());
             queueOut.add(link);
             return true;
-        }else {
-            if(upLinkTotalHandler !=null)
+        } else {
+            if (upLinkTotalHandler != null)
                 upLinkTotalHandler.accept(null);
             return false;
         }

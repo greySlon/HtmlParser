@@ -2,6 +2,7 @@ package abinail.model;
 
 import abinail.interfaces.HtmlExtractor;
 import abinail.filters.*;
+import abinail.interfaces.HtmlIterable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -12,32 +13,34 @@ import java.util.function.Consumer;
  * Created by Sergii on 24.01.2017.
  */
 
-public class LinkExtractor extends HtmlExtractor<Content,URL> {
-    protected Consumer<Integer> upLinkProcessedHandler;
-    public void setUpLinkProcessedHandler(Consumer<Integer> upLinkProcessedHandler) {
-        this.upLinkProcessedHandler = upLinkProcessedHandler;
-    }
+public class LinkExtractor extends HtmlExtractor<Content, URL> {
+
+    private HtmlIterable<URL> htmlIterable = new HtmlLinkIterator();
+    protected Consumer<Integer> linkFoundHandler;
+
     public LinkExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
-        htmlIterable = new HtmlLinkIterator();
-        this.setDaemon(true);
+        super.setDaemon(true);
     }
 
-    @Override
+    public void setLinkFoundHandler(Consumer<Integer> linkFoundHandler) {
+        this.linkFoundHandler = linkFoundHandler;
+    }
+
     public void setDisallowed(String queryParamsToReplace) {
         htmlIterable.setDisalowed(queryParamsToReplace);
     }
 
     @Override
-    public void extract(Content content) throws MalformedURLException, InterruptedException{
+    public void extract(Content content) throws MalformedURLException, InterruptedException {
         htmlIterable.setIn(content);
-        int count=0;
+        int count = 0;
         for (URL url : htmlIterable) {
             queueOut.put(url);
             count++;
         }
-        if (upLinkProcessedHandler != null) {
-            upLinkProcessedHandler.accept(count);
+        if (linkFoundHandler != null) {
+            linkFoundHandler.accept(count);
         }
     }
 
@@ -47,7 +50,7 @@ public class LinkExtractor extends HtmlExtractor<Content,URL> {
             if (isInterrupted()) return;
             try {
                 Content content = queueIn.take();
-                if(queuePassThrough!=null){
+                if (queuePassThrough != null) {
                     queuePassThrough.put(content);
                 }
                 extract(content);

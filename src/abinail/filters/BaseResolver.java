@@ -37,9 +37,4 @@ public class BaseResolver {
         }
         return baseUrl;
     }
-    public static void main(String[]a) throws MalformedURLException{
-        URL base=new URL("http://qwer.com/");
-        System.out.println(new URL(base,"").toString());
-        System.out.println(new URL(base,"/").toString());
-    }
 }

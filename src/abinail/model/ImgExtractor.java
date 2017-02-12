@@ -2,6 +2,7 @@ package abinail.model;
 
 import abinail.filters.HtmlImgIterator;
 import abinail.interfaces.HtmlExtractor;
+import abinail.interfaces.HtmlIterable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,19 +14,18 @@ import java.util.function.Consumer;
  */
 
 public class ImgExtractor extends HtmlExtractor<Content, URL> {
+    private HtmlIterable<URL> htmlIterable = new HtmlImgIterator();
     protected Consumer<Object> upImgFoundHandler;
+
+    public ImgExtractor(BlockingQueue<Content> queueIn) {
+        super(queueIn);
+        super.setDaemon(true);
+    }
 
     public void setUpImgFoundHandler(Consumer<Object> upImgFoundHandler) {
         this.upImgFoundHandler = upImgFoundHandler;
     }
 
-    public ImgExtractor(BlockingQueue<Content> queueIn) {
-        super(queueIn);
-        this.htmlIterable = new HtmlImgIterator();
-        this.setDaemon(true);
-    }
-
-    @Override
     public void setAllowed(String containString) {
         htmlIterable.setAllowed(containString);
     }
