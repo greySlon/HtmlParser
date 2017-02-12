@@ -67,6 +67,10 @@ public class ViewController {
 
     private boolean imgLoading;
 
+    public boolean isImgLoading() {
+        return imgLoading;
+    }
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -172,10 +176,12 @@ public class ViewController {
 
 
         htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
+        htmlLoader.setLinkProcessedHandler(uiChange::linkProcessed);
 
         linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
         linkExtractor.setDisallowed(paramTextField.getText());
-        linkExtractor.setUpLinkProcessedHandler(uiChange::upLinkProcessed);
+//        linkExtractor.setUpLinkProcessedHandler(uiChange::upLinkProcessed);
+        linkExtractor.setLinkFoundHandler(uiChange::linkFound);
 
         linkContainer.setQueueIn(linkExtractor.getQueueOut());
 

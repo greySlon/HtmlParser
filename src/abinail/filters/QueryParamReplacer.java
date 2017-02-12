@@ -8,20 +8,14 @@ import java.util.regex.Pattern;
  * Created by Sergii on 24.01.2017.
  */
 public class QueryParamReplacer {
-    //    private Pattern pattern;
-    private String format = "(?<=\\?)%s[^\\s\\&]*(\\&)?|(?<=\\&)%s[^\\s\\&]*(\\&)?";
     private List<Pattern> patternList = new LinkedList<>();
 
     public QueryParamReplacer(String queryParamsToRemove) {
         if (queryParamsToRemove != null && !queryParamsToRemove.isEmpty()) {
-//            StringBuilder patternStringBuilder = new StringBuilder(100);
             String[] queries = queryParamsToRemove.split(" ");
 
             for (String param : queries) {
                 if (!param.isEmpty()) {
-                    /*if (patternStringBuilder.length() > 0) patternStringBuilder.append("|");
-                    patternStringBuilder.append("(?<=\\?)").append(param).append("[^\\s\\&]*(\\&)?|(?<=\\&)")
-                            .append(param).append("[^\\s\\&]*(\\&)?");*/
                     String patternString = "(?<=\\?)" + param + "=[^\\s\\&]*(\\&){0,1}";
                     patternList.add(Pattern.compile(patternString, Pattern.CASE_INSENSITIVE));
                     patternString = "(?<=\\?)" + param + "$";
@@ -38,7 +32,6 @@ public class QueryParamReplacer {
 
                 }
             }
-//            pattern = Pattern.compile(patternStringBuilder.toString(), Pattern.CASE_INSENSITIVE);
         }
     }
 
@@ -47,6 +40,5 @@ public class QueryParamReplacer {
             s = pattern.matcher(s).replaceAll("");
         }
         return s;
-//        return pattern.matcher(s).replaceAll("");
     }
 }

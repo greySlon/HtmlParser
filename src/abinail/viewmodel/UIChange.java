@@ -36,12 +36,17 @@ public class UIChange {
         });
     }
 
-    public void upLinkProcessed(int count) {
+    public void linkFound(int count){
         Platform.runLater(() -> {
             linkTotal += count;
+            checkStop();
+        });
+    }
+
+    public void linkProcessed(Object o) {
+        Platform.runLater(() -> {
             controller.linkProcessedTextField.setText(String.valueOf(++linkProcessed));
             controller.linkProcessedBar.setProgress(linkProcessed / (double) linkUnique);
-            checkStop();
         });
     }
 
@@ -67,7 +72,7 @@ public class UIChange {
     }
 
     private void chekStopImgProc() {
-        if (linkProcessingStoped && imgProcessed == imgFound) {
+        if (controller.isImgLoading() && linkProcessingStoped && imgProcessed == imgFound) {
             controller.stopImgLoading();
             new Alert(Alert.AlertType.INFORMATION, "Loading images has done").show();
         }
