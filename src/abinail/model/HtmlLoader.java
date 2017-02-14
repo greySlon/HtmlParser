@@ -1,12 +1,13 @@
 package abinail.model;
 
+import abinail.interfaces.Event;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Queue;
 import java.util.concurrent.*;
-import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 25.01.2017.
@@ -16,16 +17,13 @@ public class HtmlLoader implements Runnable {
     private int nThreads;
     private ExecutorService exec;
     private BlockingQueue<Content> contentQueueOut = new ArrayBlockingQueue<Content>(50);
-    protected Consumer<Object> linkProcessedHandler;
+
+    public final Event linkProcessedEvent = new Event();
 
     public HtmlLoader(Queue<Link> linkQueueIn, int nThreads) {
         this.linkQueueIn = linkQueueIn;
         this.nThreads = (nThreads > 0) ? nThreads : 1;
         this.exec = Executors.newFixedThreadPool(nThreads);
-    }
-
-    public void setLinkProcessedHandler(Consumer<Object> linkProcessedHandler) {
-        this.linkProcessedHandler = linkProcessedHandler;
     }
 
     @Override
@@ -34,9 +32,7 @@ public class HtmlLoader implements Runnable {
         if (link != null) {
             URL url = link.url;
             try {
-                if (linkProcessedHandler != null) {
-                    linkProcessedHandler.accept(null);
-                }
+                linkProcessedEvent.fireEvent(this, null);
                 StringBuilder sb = new StringBuilder(5000);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
                     reader.lines().forEach(s -> sb.append(s));

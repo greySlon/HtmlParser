@@ -1,5 +1,6 @@
 package abinail.model;
 
+import abinail.interfaces.Event;
 import abinail.interfaces.HtmlExtractor;
 import abinail.filters.*;
 import abinail.interfaces.HtmlIterable;
@@ -7,24 +8,19 @@ import abinail.interfaces.HtmlIterable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 24.01.2017.
  */
 
 public class LinkExtractor extends HtmlExtractor<Content, URL> {
-
     private HtmlIterable<URL> htmlIterable = new HtmlLinkIterator();
-    protected Consumer<Integer> linkFoundHandler;
+
+    public final Event<Integer> linkFoundEvent = new Event();
 
     public LinkExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
         super.setDaemon(true);
-    }
-
-    public void setLinkFoundHandler(Consumer<Integer> linkFoundHandler) {
-        this.linkFoundHandler = linkFoundHandler;
     }
 
     public void setDisallowed(String queryParamsToReplace) {
@@ -39,9 +35,7 @@ public class LinkExtractor extends HtmlExtractor<Content, URL> {
             queueOut.put(url);
             count++;
         }
-        if (linkFoundHandler != null) {
-            linkFoundHandler.accept(count);
-        }
+        linkFoundEvent.fireEvent(this, count);
     }
 
     @Override

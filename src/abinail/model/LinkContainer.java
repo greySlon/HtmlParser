@@ -1,10 +1,11 @@
 package abinail.model;
 
+import abinail.interfaces.Event;
+
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 25.01.2017.
@@ -12,14 +13,10 @@ import java.util.function.Consumer;
 public class LinkContainer extends ConcurrentSkipListSet<Link> {
     private BlockingQueue<URL> queueIn;
     private ConcurrentLinkedQueue<Link> queueOut = new ConcurrentLinkedQueue<>();
-
-    private Consumer<String> upLinkTotalHandler;
     private Thread selfThread;
 
-
-    public void setUpLinkTotalHandler(Consumer<String> upLinkTotalHandler) {
-        this.upLinkTotalHandler = upLinkTotalHandler;
-    }
+    public final Event<String> addUniqueEvent = new Event<>();
+    public final Event addNonUniqueEvent = new Event();
 
     public void setQueueIn(BlockingQueue<URL> queueIn) {
         this.queueIn = queueIn;
@@ -48,13 +45,11 @@ public class LinkContainer extends ConcurrentSkipListSet<Link> {
     @Override
     public boolean add(Link link) {
         if (super.add(link)) {
-            if (upLinkTotalHandler != null)
-                upLinkTotalHandler.accept(link.url.getFile());
+            addUniqueEvent.fireEvent(this, link.url.getFile());
             queueOut.add(link);
             return true;
         } else {
-            if (upLinkTotalHandler != null)
-                upLinkTotalHandler.accept(null);
+            addNonUniqueEvent.fireEvent(this, null);
             return false;
         }
     }

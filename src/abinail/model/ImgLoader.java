@@ -1,9 +1,10 @@
 package abinail.model;
 
+import abinail.interfaces.Event;
+
 import java.io.*;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
-import java.util.function.Consumer;
 
 /**
  * Created by Sergii on 25.01.2017.
@@ -11,19 +12,10 @@ import java.util.function.Consumer;
 public class ImgLoader extends Thread {
     private BlockingQueue<URL> urlQueueIn;
     private File folder;
-
-    private Consumer<Long> uiImgLoaded;
-    private Consumer<Object> uiImgProcessed;
-
     private StringBuilder sb = new StringBuilder(300);
 
-    public void setUiImgLoaded(Consumer<Long> uiImgLoaded) {
-        this.uiImgLoaded = uiImgLoaded;
-    }
-
-    public void setUiImgProcessed(Consumer<Object> uiImgProcessed) {
-        this.uiImgProcessed = uiImgProcessed;
-    }
+    public final Event<Long> imgLoadedEvent = new Event<>();
+    public final Event imgProcessedEvent = new Event();
 
     public ImgLoader(BlockingQueue<URL> queueIn, File folder) {
         this.urlQueueIn = queueIn;
@@ -54,11 +46,9 @@ public class ImgLoader extends Thread {
                     }
                     bis.close();
                     bos.close();
-                    if (uiImgLoaded != null)
-                        uiImgLoaded.accept(fileSize);
+                    imgLoadedEvent.fireEvent(this, fileSize);
                 }
-                if (uiImgProcessed != null)
-                    uiImgProcessed.accept(null);
+                imgProcessedEvent.fireEvent(this, null);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return;

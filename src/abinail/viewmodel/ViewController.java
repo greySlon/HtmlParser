@@ -77,17 +77,17 @@ public class ViewController {
 
 
     void stopLinkProcessing() {
-        if(htmlLoader!=null)htmlLoader.stop();
-        if(linkExtractor!=null)linkExtractor.interrupt();
-        if(linkContainer!=null) {
+        if (htmlLoader != null) htmlLoader.stop();
+        if (linkExtractor != null) linkExtractor.interrupt();
+        if (linkContainer != null) {
             linkContainer.interrupt();
             saveSitemap();
         }
     }
 
     void stopImgLoading() {
-        if(imgExtractor!=null)imgExtractor.interrupt();
-        if(imgLoader!=null)imgLoader.interrupt();
+        if (imgExtractor != null) imgExtractor.interrupt();
+        if (imgLoader != null) imgLoader.interrupt();
     }
 
     private void saveSitemap() {
@@ -172,16 +172,16 @@ public class ViewController {
         }
 
         linkContainer = new LinkContainer();
-        linkContainer.setUpLinkTotalHandler(uiChange::upLinkTotalUnique);
+        linkContainer.addNonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
+        linkContainer.addUniqueEvent.addEventListner(uiChange.addUniqueHandler);
 
 
         htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
-        htmlLoader.setLinkProcessedHandler(uiChange::linkProcessed);
+        htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
 
         linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
         linkExtractor.setDisallowed(paramTextField.getText());
-//        linkExtractor.setUpLinkProcessedHandler(uiChange::upLinkProcessed);
-        linkExtractor.setLinkFoundHandler(uiChange::linkFound);
+        linkExtractor.linkFoundEvent.addEventListner(uiChange.linkFoundHandler);
 
         linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
@@ -190,12 +190,12 @@ public class ViewController {
 
             imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
             imgExtractor.setAllowed(matchesTextField.getText());
-            imgExtractor.setUpImgFoundHandler(uiChange::upImgFound);
+            imgExtractor.imgFoundEvent.addEventListner(uiChange.imgFoundHandler);
             imgExtractor.start();
 
             imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
-            imgLoader.setUiImgLoaded(uiChange::upImgLoaded);
-            imgLoader.setUiImgProcessed(uiChange::upImgProcessed);
+            imgLoader.imgLoadedEvent.addEventListner(uiChange.imgLoadedHandler);
+            imgLoader.imgProcessedEvent.addEventListner(uiChange.imgProcessedHandler);
             imgLoader.start();
         }
 
