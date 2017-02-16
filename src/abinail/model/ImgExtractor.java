@@ -2,6 +2,7 @@ package abinail.model;
 
 import abinail.filters.HtmlImgIterator;
 import abinail.interfaces.Event;
+import abinail.interfaces.Notifier;
 import abinail.interfaces.HtmlExtractor;
 import abinail.interfaces.HtmlIterable;
 
@@ -16,7 +17,10 @@ import java.util.concurrent.BlockingQueue;
 public class ImgExtractor extends HtmlExtractor<Content, URL> {
     private HtmlIterable<URL> htmlIterable = new HtmlImgIterator();
 
-    public final Event<URL> imgFoundEvent = new Event();
+    private Notifier<URL> imgFoundEventNotifier = new Notifier();
+
+    public final Event<URL> imgFoundEvent=imgFoundEventNotifier.getEvent();
+
 
     public ImgExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
@@ -32,7 +36,7 @@ public class ImgExtractor extends HtmlExtractor<Content, URL> {
         htmlIterable.setIn(content);
         for (URL url : htmlIterable) {
             queueOut.put(url);
-            imgFoundEvent.fireEvent(this, url);
+            imgFoundEventNotifier.raiseEvent(this, url);
         }
     }
 

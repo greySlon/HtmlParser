@@ -1,5 +1,6 @@
 package abinail.model;
 
+import abinail.interfaces.Notifier;
 import abinail.interfaces.Event;
 
 import java.net.URL;
@@ -15,8 +16,11 @@ public class LinkContainer extends ConcurrentSkipListSet<Link> {
     private ConcurrentLinkedQueue<Link> queueOut = new ConcurrentLinkedQueue<>();
     private Thread selfThread;
 
-    public final Event<String> addUniqueEvent = new Event<>();
-    public final Event addNonUniqueEvent = new Event();
+    private Notifier<String> uniqueEventNotifier = new Notifier<>();
+    private Notifier nonUniqueEventNotifier = new Notifier();
+
+    public final Event<String> UniqueEvent = uniqueEventNotifier.getEvent();
+    public final Event NonUniqueEvent = nonUniqueEventNotifier.getEvent();
 
     public void setQueueIn(BlockingQueue<URL> queueIn) {
         this.queueIn = queueIn;
@@ -45,11 +49,11 @@ public class LinkContainer extends ConcurrentSkipListSet<Link> {
     @Override
     public boolean add(Link link) {
         if (super.add(link)) {
-            addUniqueEvent.fireEvent(this, link.url.getFile());
+            uniqueEventNotifier.raiseEvent(this, link.url.getFile());
             queueOut.add(link);
             return true;
         } else {
-            addNonUniqueEvent.fireEvent(this, null);
+            nonUniqueEventNotifier.raiseEvent(this, null);
             return false;
         }
     }

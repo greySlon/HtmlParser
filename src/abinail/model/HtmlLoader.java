@@ -1,7 +1,9 @@
 package abinail.model;
 
 import abinail.interfaces.Event;
+import abinail.interfaces.Notifier;
 
+import javax.lang.model.element.ElementVisitor;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +20,9 @@ public class HtmlLoader implements Runnable {
     private ExecutorService exec;
     private BlockingQueue<Content> contentQueueOut = new ArrayBlockingQueue<Content>(50);
 
-    public final Event linkProcessedEvent = new Event();
+    private Notifier linkProcessedEventNotifier = new Notifier();
+
+    public final Event linkProcessedEvent=linkProcessedEventNotifier.getEvent();
 
     public HtmlLoader(Queue<Link> linkQueueIn, int nThreads) {
         this.linkQueueIn = linkQueueIn;
@@ -32,7 +36,7 @@ public class HtmlLoader implements Runnable {
         if (link != null) {
             URL url = link.url;
             try {
-                linkProcessedEvent.fireEvent(this, null);
+                linkProcessedEventNotifier.raiseEvent(this, null);
                 StringBuilder sb = new StringBuilder(5000);
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
                     reader.lines().forEach(s -> sb.append(s));

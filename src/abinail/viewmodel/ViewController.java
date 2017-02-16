@@ -172,9 +172,10 @@ public class ViewController {
         }
 
         linkContainer = new LinkContainer();
-        linkContainer.addNonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
-        linkContainer.addUniqueEvent.addEventListner(uiChange.addUniqueHandler);
-
+//        linkContainer.addNonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
+//        linkContainer.addUniqueEvent.addEventListner(uiChange.addUniqueHandler);
+        linkContainer.NonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
+        linkContainer.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
 
         htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
         htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);

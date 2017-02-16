@@ -1,6 +1,7 @@
 package abinail.model;
 
 import abinail.interfaces.Event;
+import abinail.interfaces.Notifier;
 import abinail.interfaces.HtmlExtractor;
 import abinail.filters.*;
 import abinail.interfaces.HtmlIterable;
@@ -16,7 +17,9 @@ import java.util.concurrent.BlockingQueue;
 public class LinkExtractor extends HtmlExtractor<Content, URL> {
     private HtmlIterable<URL> htmlIterable = new HtmlLinkIterator();
 
-    public final Event<Integer> linkFoundEvent = new Event();
+    private Notifier<Integer> linkFoundEventNotifier = new Notifier();
+
+    public final Event<Integer> linkFoundEvent=linkFoundEventNotifier.getEvent();
 
     public LinkExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
@@ -35,7 +38,7 @@ public class LinkExtractor extends HtmlExtractor<Content, URL> {
             queueOut.put(url);
             count++;
         }
-        linkFoundEvent.fireEvent(this, count);
+        linkFoundEventNotifier.raiseEvent(this, count);
     }
 
     @Override

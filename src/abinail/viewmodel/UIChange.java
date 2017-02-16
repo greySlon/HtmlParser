@@ -1,6 +1,5 @@
 package abinail.viewmodel;
 
-import abinail.interfaces.Event;
 import abinail.interfaces.Listner;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;

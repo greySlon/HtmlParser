@@ -1,6 +1,7 @@
 package abinail.model;
 
 import abinail.interfaces.Event;
+import abinail.interfaces.Notifier;
 
 import java.io.*;
 import java.net.URL;
@@ -14,8 +15,11 @@ public class ImgLoader extends Thread {
     private File folder;
     private StringBuilder sb = new StringBuilder(300);
 
-    public final Event<Long> imgLoadedEvent = new Event<>();
-    public final Event imgProcessedEvent = new Event();
+    private Notifier<Long> imgLoadedEventNotifier = new Notifier<>();
+    private Notifier imgProcessedEventNotifier = new Notifier();
+
+    public final Event<Long>  imgLoadedEvent=imgLoadedEventNotifier.getEvent();
+    public final Event imgProcessedEvent=imgProcessedEventNotifier.getEvent();
 
     public ImgLoader(BlockingQueue<URL> queueIn, File folder) {
         this.urlQueueIn = queueIn;
@@ -46,9 +50,9 @@ public class ImgLoader extends Thread {
                     }
                     bis.close();
                     bos.close();
-                    imgLoadedEvent.fireEvent(this, fileSize);
+                    imgLoadedEventNotifier.raiseEvent(this, fileSize);
                 }
-                imgProcessedEvent.fireEvent(this, null);
+                imgProcessedEventNotifier.raiseEvent(this, null);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return;
