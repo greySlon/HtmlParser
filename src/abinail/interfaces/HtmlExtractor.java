@@ -9,36 +9,29 @@ import java.util.concurrent.BlockingQueue;
  */
 abstract public class HtmlExtractor<T, U> extends Thread {
     protected BlockingQueue<T> queueIn;
-    protected BlockingQueue<U> queueOut;
+    protected BlockingQueue<U> queueOut = new ArrayBlockingQueue<U>(100);
     protected BlockingQueue<T> queuePassThrough;
-//    protected HtmlIterable<U> htmlIterable;
 
     public HtmlExtractor(BlockingQueue<T> queueIn) {
         this.queueIn = queueIn;
-        queueOut=new ArrayBlockingQueue<U>(100);
+        setDaemon(true);
     }
 
     abstract public void extract(T t) throws MalformedURLException, InterruptedException;
-//
-//    public void setAllowed(String allowed) {
-//    }
-//
-//    public void setDisallowed(String disallowed) {
-//    }
 
     public void enableQueuePassTrough() {
         this.queuePassThrough = new ArrayBlockingQueue<T>(100);
     }
 
     public BlockingQueue<U> getQueueOut() {
-        if (queueOut != null) {
-            return queueOut;
-        } else {
-            throw new RuntimeException("No queue created");
-        }
+        return queueOut;
     }
 
     public BlockingQueue<T> getQueuePassThrough() {
-        return queuePassThrough;
+        if (queuePassThrough != null) {
+            return queuePassThrough;
+        } else {
+            throw new RuntimeException("No queue created");
+        }
     }
 }

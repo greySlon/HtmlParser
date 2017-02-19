@@ -9,6 +9,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.net.URL;
+
 public class Main extends Application {
 
     @Override
@@ -16,7 +18,6 @@ public class Main extends Application {
         FXMLLoader loader=new FXMLLoader();
         loader.setLocation(getClass().getResource("viewmodel/View.fxml"));
         Parent root=loader.load();
-
         primaryStage.setTitle("Html Parser");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();

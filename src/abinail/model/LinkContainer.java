@@ -4,6 +4,9 @@ import abinail.interfaces.Notifier;
 import abinail.interfaces.Event;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -11,7 +14,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 /**
  * Created by Sergii on 25.01.2017.
  */
-public class LinkContainer extends ConcurrentSkipListSet<Link> {
+public class LinkContainer extends TreeSet<Link> {
     private BlockingQueue<URL> queueIn;
     private ConcurrentLinkedQueue<Link> queueOut = new ConcurrentLinkedQueue<>();
     private Thread selfThread;
@@ -37,7 +40,7 @@ public class LinkContainer extends ConcurrentSkipListSet<Link> {
                     URL url = queueIn.take();
                     add(new Link(url));
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    System.err.println(getClass().getName() + " INTERRUPTED");
                     return;
                 }
             }

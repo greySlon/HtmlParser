@@ -22,7 +22,7 @@ public class HtmlLoader implements Runnable {
 
     private Notifier linkProcessedEventNotifier = new Notifier();
 
-    public final Event linkProcessedEvent=linkProcessedEventNotifier.getEvent();
+    public final Event linkProcessedEvent = linkProcessedEventNotifier.getEvent();
 
     public HtmlLoader(Queue<Link> linkQueueIn, int nThreads) {
         this.linkQueueIn = linkQueueIn;
@@ -45,7 +45,7 @@ public class HtmlLoader implements Runnable {
                 contentQueueOut.put(content);
                 link.setOk(true);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println(getClass().getName() + " INTERRUPTED");
             } catch (IOException e) {
                 e.printStackTrace();
             }

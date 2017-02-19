@@ -9,10 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -57,15 +54,12 @@ public class ViewController {
     private File folderToSave;
     private Stage stage;
     private UIChange uiChange;
+    private boolean imgLoading;
 
     ObservableList<String> linkList = FXCollections.observableArrayList();
-    private LinkContainer linkContainer;
-    private HtmlLoader htmlLoader;
-    private LinkExtractor linkExtractor;
-    private ImgExtractor imgExtractor;
-    private ImgLoader imgLoader;
 
-    private boolean imgLoading;
+    private Starter starter;
+
 
     public boolean isImgLoading() {
         return imgLoading;
@@ -75,50 +69,18 @@ public class ViewController {
         this.stage = stage;
     }
 
-
     void stopLinkProcessing() {
-        if (htmlLoader != null) htmlLoader.stop();
-        if (linkExtractor != null) linkExtractor.interrupt();
-        if (linkContainer != null) {
-            linkContainer.interrupt();
-            saveSitemap();
-        }
+        starter.stop();
+        starter.saveSitemap(folderToSave);
     }
 
     void stopImgLoading() {
-        if (imgExtractor != null) imgExtractor.interrupt();
-        if (imgLoader != null) imgLoader.interrupt();
-    }
-
-    private void saveSitemap() {
-        File file = new File(folderToSave, "sitemap.xml");
-        try {
-            StringBuilder sb = new StringBuilder(200);
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-
-            writer.write("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
-            writer.newLine();
-            for (Link link : linkContainer) {
-                sb.setLength(0);
-                if (link.isOk()) {
-
-                    sb.append("<url><loc>").append(link.toString()).append("</loc></url>");
-
-                    writer.write(sb.toString());
-                    writer.newLine();
-                }
-            }
-            writer.write("</urlset>");
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        starter.stopAll();
     }
 
     public void dispose() {
-        stopLinkProcessing();
-        if (imgLoading) {
-            stopImgLoading();
+        if (starter != null) {
+            starter.stopAll();
         }
     }
 
@@ -128,12 +90,6 @@ public class ViewController {
         linkListView.setItems(linkList);
         protocolComboBox.setItems(FXCollections.observableArrayList(Arrays.asList("http", "https")));
         protocolComboBox.getSelectionModel().select(0);
-    }
-
-    @FXML
-    private void saveButtonOnClick() {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        folderToSave = directoryChooser.showDialog(stage);
     }
 
     @FXML
@@ -164,46 +120,19 @@ public class ViewController {
 
     @FXML
     private void startButtonOnClick() throws MalformedURLException {
-        uiChange.resetCounters();
-
         if (folderToSave == null) {
             new Alert(Alert.AlertType.ERROR, "There is no folder to save", ButtonType.OK).showAndWait();
             return;
         }
+        uiChange.resetCounters();
+        URL url = new URL(protocol, host, "/");
 
-        linkContainer = new LinkContainer();
-//        linkContainer.addNonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
-//        linkContainer.addUniqueEvent.addEventListner(uiChange.addUniqueHandler);
-        linkContainer.NonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
-        linkContainer.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
-
-        htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
-        htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
-
-        linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
-        linkExtractor.setDisallowed(paramTextField.getText());
-        linkExtractor.linkFoundEvent.addEventListner(uiChange.linkFoundHandler);
-
-        linkContainer.setQueueIn(linkExtractor.getQueueOut());
-
+        starter = new Starter(uiChange);
         if (imgLoading) {
-            linkExtractor.enableQueuePassTrough();
-
-            imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
-            imgExtractor.setAllowed(matchesTextField.getText());
-            imgExtractor.imgFoundEvent.addEventListner(uiChange.imgFoundHandler);
-            imgExtractor.start();
-
-            imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
-            imgLoader.imgLoadedEvent.addEventListner(uiChange.imgLoadedHandler);
-            imgLoader.imgProcessedEvent.addEventListner(uiChange.imgProcessedHandler);
-            imgLoader.start();
+            starter.startAll(url, paramTextField.getText(), matchesTextField.getText(), folderToSave);
+        } else {
+            starter.start(url, paramTextField.getText());
         }
-
-        linkContainer.add(new Link(new URL(protocol, host, "/")));
-        linkContainer.start();
-        htmlLoader.start();
-        linkExtractor.start();
 
         cancelButton.setDisable(false);
         startButton.setDisable(true);
@@ -214,6 +143,12 @@ public class ViewController {
         cancelButton.setDisable(true);
         dispose();
         new Alert(Alert.AlertType.INFORMATION, "Canceled").showAndWait();
+    }
+
+    @FXML
+    private void saveButtonOnClick() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        folderToSave = directoryChooser.showDialog(stage);
     }
 
 }

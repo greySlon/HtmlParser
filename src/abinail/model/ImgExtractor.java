@@ -19,12 +19,11 @@ public class ImgExtractor extends HtmlExtractor<Content, URL> {
 
     private Notifier<URL> imgFoundEventNotifier = new Notifier();
 
-    public final Event<URL> imgFoundEvent=imgFoundEventNotifier.getEvent();
+    public final Event<URL> imgFoundEvent = imgFoundEventNotifier.getEvent();
 
 
     public ImgExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
-        super.setDaemon(true);
     }
 
     public void setAllowed(String containString) {
@@ -48,7 +47,7 @@ public class ImgExtractor extends HtmlExtractor<Content, URL> {
                 Content content = queueIn.take();
                 extract(content);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println(getClass().getName() + " INTERRUPTED");
                 return;
             } catch (MalformedURLException e) {
                 e.printStackTrace();

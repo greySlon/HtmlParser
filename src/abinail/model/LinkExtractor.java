@@ -16,10 +16,9 @@ import java.util.concurrent.BlockingQueue;
 
 public class LinkExtractor extends HtmlExtractor<Content, URL> {
     private HtmlIterable<URL> htmlIterable = new HtmlLinkIterator();
-
     private Notifier<Integer> linkFoundEventNotifier = new Notifier();
 
-    public final Event<Integer> linkFoundEvent=linkFoundEventNotifier.getEvent();
+    public final Event<Integer> linkFoundEvent = linkFoundEventNotifier.getEvent();
 
     public LinkExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
@@ -55,7 +54,7 @@ public class LinkExtractor extends HtmlExtractor<Content, URL> {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println(getClass().getName() + " INTERRUPTED");
                 return;
             }
         }
