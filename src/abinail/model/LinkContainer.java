@@ -14,10 +14,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 /**
  * Created by Sergii on 25.01.2017.
  */
-public class LinkContainer extends TreeSet<Link> {
+public class LinkContainer extends TreeSet<Link> implements Runnable {
     private BlockingQueue<URL> queueIn;
     private ConcurrentLinkedQueue<Link> queueOut = new ConcurrentLinkedQueue<>();
-    private Thread selfThread;
 
     private Notifier<String> uniqueEventNotifier = new Notifier<>();
     private Notifier nonUniqueEventNotifier = new Notifier();
@@ -27,26 +26,6 @@ public class LinkContainer extends TreeSet<Link> {
 
     public void setQueueIn(BlockingQueue<URL> queueIn) {
         this.queueIn = queueIn;
-    }
-
-    public void interrupt() {
-        selfThread.interrupt();
-    }
-
-    public void start() {
-        selfThread = new Thread(() -> {
-            while (true) {
-                try {
-                    URL url = queueIn.take();
-                    add(new Link(url));
-                } catch (InterruptedException e) {
-                    System.err.println(getClass().getName() + " INTERRUPTED");
-                    return;
-                }
-            }
-        });
-        selfThread.setDaemon(true);
-        selfThread.start();
     }
 
     @Override
@@ -63,5 +42,17 @@ public class LinkContainer extends TreeSet<Link> {
 
     public ConcurrentLinkedQueue<Link> getQueueOut() {
         return queueOut;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                URL url = queueIn.take();
+                add(new Link(url));
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
     }
 }

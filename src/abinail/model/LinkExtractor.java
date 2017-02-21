@@ -22,7 +22,6 @@ public class LinkExtractor extends HtmlExtractor<Content, URL> {
 
     public LinkExtractor(BlockingQueue<Content> queueIn) {
         super(queueIn);
-        super.setDaemon(true);
     }
 
     public void setDisallowed(String queryParamsToReplace) {
@@ -30,33 +29,21 @@ public class LinkExtractor extends HtmlExtractor<Content, URL> {
     }
 
     @Override
-    public void extract(Content content) throws MalformedURLException, InterruptedException {
-        htmlIterable.setIn(content);
-        int count = 0;
-        for (URL url : htmlIterable) {
-            queueOut.put(url);
-            count++;
-        }
-        linkFoundEventNotifier.raiseEvent(this, count);
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            if (isInterrupted()) return;
-            try {
-                Content content = queueIn.take();
-                if (queuePassThrough != null) {
-                    queuePassThrough.put(content);
-                }
-                extract(content);
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                System.err.println(getClass().getName() + " INTERRUPTED");
-                return;
+    public void extract() throws InterruptedException {
+        try {
+            Content content = queueIn.take();
+            if (queuePassThrough != null) {
+                queuePassThrough.put(content);
             }
+            htmlIterable.setIn(content);
+            int count = 0;
+            for (URL url : htmlIterable) {
+                queueOut.put(url);
+                count++;
+            }
+            linkFoundEventNotifier.raiseEvent(this, count);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
     }
 }

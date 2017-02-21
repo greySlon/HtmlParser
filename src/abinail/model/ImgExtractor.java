@@ -16,7 +16,6 @@ import java.util.concurrent.BlockingQueue;
 
 public class ImgExtractor extends HtmlExtractor<Content, URL> {
     private HtmlIterable<URL> htmlIterable = new HtmlImgIterator();
-
     private Notifier<URL> imgFoundEventNotifier = new Notifier();
 
     public final Event<URL> imgFoundEvent = imgFoundEventNotifier.getEvent();
@@ -31,27 +30,17 @@ public class ImgExtractor extends HtmlExtractor<Content, URL> {
     }
 
     @Override
-    public void extract(Content content) throws MalformedURLException, InterruptedException {
-        htmlIterable.setIn(content);
-        for (URL url : htmlIterable) {
-            queueOut.put(url);
-            imgFoundEventNotifier.raiseEvent(this, url);
-        }
-    }
+    public void extract() throws InterruptedException {
+        try {
+            Content content = queueIn.take();
+            htmlIterable.setIn(content);
 
-    @Override
-    public void run() {
-        while (true) {
-            if (isInterrupted()) return;
-            try {
-                Content content = queueIn.take();
-                extract(content);
-            } catch (InterruptedException e) {
-                System.err.println(getClass().getName() + " INTERRUPTED");
-                return;
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
+            for (URL url : htmlIterable) {
+                queueOut.put(url);
+                imgFoundEventNotifier.raiseEvent(this, url);
             }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
         }
     }
 }

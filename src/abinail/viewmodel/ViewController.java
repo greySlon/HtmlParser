@@ -122,6 +122,7 @@ public class ViewController {
     private void startButtonOnClick() throws MalformedURLException {
         if (folderToSave == null) {
             new Alert(Alert.AlertType.ERROR, "There is no folder to save", ButtonType.OK).showAndWait();
+            saveButtonOnClick();
             return;
         }
         uiChange.resetCounters();

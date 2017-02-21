@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Sergii on 25.01.2017.
  */
-public class ImgLoader extends Thread {
+public class ImgLoader implements Runnable {
     private BlockingQueue<URL> urlQueueIn;
     private File folder;
     private StringBuilder sb = new StringBuilder(300);
@@ -34,13 +34,11 @@ public class ImgLoader extends Thread {
     @Override
     public void run() {
         while (true) {
-            if (isInterrupted()) return;
             try {
                 URL url = urlQueueIn.take();
                 String newName = getNewName(url.getPath());
                 saveFile(url, newName);
             } catch (InterruptedException e) {
-                System.err.println(getClass().getName() + " INTERRUPTED");
                 return;
             } catch (IOException e) {
                 e.printStackTrace();

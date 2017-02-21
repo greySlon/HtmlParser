@@ -1,25 +1,26 @@
 package abinail.viewmodel;
 
 import abinail.model.*;
-import abinail.viewmodel.UIChange;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by Sergii on 19.02.2017.
  */
 public class Starter {
+    ExecutorService poolLink;
+    ExecutorService poolImg;
     LinkContainer linkContainer;
     HtmlLoader htmlLoader;
     LinkExtractor linkExtractor;
     ImgExtractor imgExtractor;
     ImgLoader imgLoader;
-    boolean started = false;
-    boolean startedAll = false;
 
     UIChange uiChange;
 
@@ -32,7 +33,7 @@ public class Starter {
         linkContainer.NonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
         linkContainer.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
 
-        htmlLoader = new HtmlLoader(linkContainer.getQueueOut(), 4);
+        htmlLoader = new HtmlLoader(linkContainer.getQueueOut()/*, 4*/);
         htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
 
         linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
@@ -41,12 +42,15 @@ public class Starter {
 
         linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
-
         linkContainer.add(new Link(url));
-        linkContainer.start();
-        htmlLoader.start();
-        linkExtractor.start();
-        started = true;
+
+        poolLink = Executors.newFixedThreadPool(6);
+        poolLink.submit(linkExtractor);
+        poolLink.submit(linkContainer);
+        for (int i = 0; i < 4; i++) {
+            poolLink.submit(htmlLoader);
+        }
+
     }
 
     public void startAll(URL url, String dissalowParam, String matches, File folderToSave) {
@@ -56,31 +60,24 @@ public class Starter {
         imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
         imgExtractor.setAllowed(matches);
         imgExtractor.imgFoundEvent.addEventListner(uiChange.imgFoundHandler);
-        imgExtractor.start();
 
         imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
         imgLoader.imgLoadedEvent.addEventListner(uiChange.imgLoadedHandler);
         imgLoader.imgProcessedEvent.addEventListner(uiChange.imgProcessedHandler);
-        imgLoader.start();
-        startedAll = true;
+
+        poolImg = Executors.newFixedThreadPool(2);
+        poolImg.submit(imgExtractor);
+        poolImg.submit(imgLoader);
+
     }
 
     public void stop() {
-        if (started) {
-            linkContainer.interrupt();
-            linkExtractor.interrupt();
-            htmlLoader.stop();
-            started = false;
-        }
+            poolLink.shutdownNow();
     }
 
     public void stopAll() {
         stop();
-        if (startedAll) {
-            imgExtractor.interrupt();
-            imgLoader.interrupt();
-            startedAll = false;
-        }
+        poolImg.shutdownNow();
     }
 
     public void saveSitemap(File folderToSave) {

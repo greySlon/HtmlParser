@@ -15,9 +15,7 @@ import java.util.regex.Pattern;
  */
 public class HtmlImgIterator implements HtmlIterable<URL> {
     private Pattern pattern = Pattern.compile("(?<=<img.{1,20}src[^\"]{1,4}\"\\s{0,3})[^\"]+|(?<=<a.{1,20}href[^\"]{1,4}\"\\s{0,3})[^\"]+");
-    //    private Pattern pattern = Pattern.compile("(?<=<img.{1,20}src[^\"]{1,4}\"\\s{0,3})[^\"]+");
     private Pattern kostili = Pattern.compile("/\\./|/\\.\\./");
-
 
     private URL host;
     private URL baseUrl;
@@ -27,9 +25,6 @@ public class HtmlImgIterator implements HtmlIterable<URL> {
     private String resultStr;
     private URL resultUrl;
     private BaseResolver baseResolver;
-
-    public HtmlImgIterator() {
-    }
 
     @Override
     public void setAllowed(String allowed) {
