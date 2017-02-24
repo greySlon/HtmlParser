@@ -132,7 +132,7 @@ public class ViewController {
         if (imgLoading) {
             starter.startAll(url, paramTextField.getText(), matchesTextField.getText(), folderToSave);
         } else {
-            starter.start(url, paramTextField.getText());
+            starter.start(url, paramTextField.getText(), false);
         }
 
         cancelButton.setDisable(false);

@@ -9,14 +9,6 @@ import java.util.List;
 public class Notifier<T>{
     private List<Listner<T>> listnersList = new ArrayList<>();
 
-//    public void addEventListner(Listner<T> listner) {
-//        listnersList.add(listner);
-//    }
-//
-//    public void removeListner(Listner<T> listner) {
-//        listnersList.remove(listner);
-//    }
-
     public void raiseEvent(Object sender, T arg) {
         for (Listner<T> listner : listnersList) {
             listner.eventHandler(sender, arg);

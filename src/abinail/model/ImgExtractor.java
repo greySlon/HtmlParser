@@ -20,19 +20,40 @@ public class ImgExtractor extends HtmlExtractor<Content, URL> {
 
     public final Event<URL> imgFoundEvent = imgFoundEventNotifier.getEvent();
 
+    public static class Builder {
+        private BlockingQueue<Content> sourceQueue;
+        private boolean enablePassThrough;
+        private String allowed;
 
-    public ImgExtractor(BlockingQueue<Content> queueIn) {
-        super(queueIn);
+        public Builder(BlockingQueue<Content> sourceQueue) {
+            this.sourceQueue = sourceQueue;
+        }
+
+        public Builder enablePassThrough(boolean enable) {
+            this.enablePassThrough = enable;
+            return this;
+        }
+
+        public Builder setAllowed(String allowed) {
+            this.allowed = allowed;
+            return this;
+        }
+
+        public ImgExtractor build() {
+            return new ImgExtractor(this);
+        }
     }
 
-    public void setAllowed(String containString) {
-        htmlIterable.setAllowed(containString);
+    private ImgExtractor(Builder builder) {
+        super(builder.sourceQueue);
+        htmlIterable.setAllowed(builder.allowed);
+        enableQueuePassTrough(builder.enablePassThrough);
     }
 
     @Override
-    public void extract() throws InterruptedException {
+    protected void extract() throws InterruptedException {
         try {
-            Content content = queueIn.take();
+            Content content = sourceQueue.take();
             htmlIterable.setIn(content);
 
             for (URL url : htmlIterable) {

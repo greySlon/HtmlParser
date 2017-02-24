@@ -1,25 +1,26 @@
 package abinail.interfaces;
 
-import java.net.MalformedURLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by Sergii on 01.02.2017.
  */
-abstract public class HtmlExtractor<T, U> implements Runnable{
-    protected BlockingQueue<T> queueIn;
+abstract public class HtmlExtractor<T, U> implements Runnable {
+    protected BlockingQueue<T> sourceQueue;
     protected BlockingQueue<U> queueOut = new ArrayBlockingQueue<U>(100);
     protected BlockingQueue<T> queuePassThrough;
 
-    public HtmlExtractor(BlockingQueue<T> queueIn) {
-        this.queueIn = queueIn;
+    protected HtmlExtractor(BlockingQueue<T> sourceQueue) {
+        this.sourceQueue = sourceQueue;
     }
+    protected HtmlExtractor(){}
 
-    abstract public void extract() throws InterruptedException;
+    abstract protected void extract() throws InterruptedException;
 
-    public void enableQueuePassTrough() {
-        this.queuePassThrough = new ArrayBlockingQueue<T>(100);
+    protected void enableQueuePassTrough(boolean enable) {
+        if (enable)
+            this.queuePassThrough = new ArrayBlockingQueue<T>(100);
     }
 
     public BlockingQueue<U> getQueueOut() {

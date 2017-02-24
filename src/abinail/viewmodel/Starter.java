@@ -1,5 +1,6 @@
 package abinail.viewmodel;
 
+import abinail.interfaces.HtmlExtractor;
 import abinail.model.*;
 
 import java.io.BufferedWriter;
@@ -28,17 +29,18 @@ public class Starter {
         this.uiChange = uiChange;
     }
 
-    public void start(URL url, String dissalowParam) {
+    public void start(URL url, String dissalowParam, boolean imgLoading) {
         linkContainer = new LinkContainer();
         linkContainer.NonUniqueEvent.addEventListner(uiChange.addNonUniqueHandler);
         linkContainer.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
 
-        htmlLoader = new HtmlLoader(linkContainer.getQueueOut()/*, 4*/);
+        htmlLoader = new HtmlLoader(linkContainer.getQueueOut());
         htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
 
-        linkExtractor = new LinkExtractor(htmlLoader.getContentQueueOut());
-        linkExtractor.setDisallowed(dissalowParam);
+        linkExtractor = new LinkExtractor.Builder(htmlLoader.getContentQueueOut())
+                .enablePassThrough(imgLoading).setDisallowed(dissalowParam).build();
         linkExtractor.linkFoundEvent.addEventListner(uiChange.linkFoundHandler);
+
 
         linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
@@ -54,11 +56,9 @@ public class Starter {
     }
 
     public void startAll(URL url, String dissalowParam, String matches, File folderToSave) {
-        start(url, dissalowParam);
-        linkExtractor.enableQueuePassTrough();
+        start(url, dissalowParam, true);
 
-        imgExtractor = new ImgExtractor(linkExtractor.getQueuePassThrough());
-        imgExtractor.setAllowed(matches);
+        imgExtractor = new ImgExtractor.Builder(linkExtractor.getQueuePassThrough()).setAllowed(matches).build();
         imgExtractor.imgFoundEvent.addEventListner(uiChange.imgFoundHandler);
 
         imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
@@ -72,7 +72,7 @@ public class Starter {
     }
 
     public void stop() {
-            poolLink.shutdownNow();
+        poolLink.shutdownNow();
     }
 
     public void stopAll() {
