@@ -6,6 +6,10 @@ import com.sun.istack.internal.NotNull;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystemException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,11 +41,14 @@ public class ImgLoader implements Runnable {
             try {
                 URL url = urlQueueIn.take();
                 String newName = getNewName(url.getPath());
-                saveFile(url, newName);
+                long fileSize = saveFile(url, newName);
+                imgLoadedEventNotifier.raiseEvent(this, fileSize);
             } catch (InterruptedException e) {
                 return;
             } catch (IOException e) {
                 e.printStackTrace();
+            }finally {
+                imgProcessedEventNotifier.raiseEvent(this, null);
             }
         }
     }
@@ -53,30 +60,15 @@ public class ImgLoader implements Runnable {
         if (matcher.find()) {
             fName = matcher.group();
         } else {
-            imgProcessedEventNotifier.raiseEvent(this, null);
             throw new IOException();
         }
-        return sb.append(fName.substring(0, fName.length() - 4)).append("(")
-                .append(startName.hashCode()).append(")")
+        return sb.append(fName.substring(0, fName.length() - 4))
+                .append("(").append(startName.hashCode()).append(")")
                 .append(fName.substring(fName.length() - 4, fName.length())).toString();
     }
 
-    private void saveFile(URL url, String name) throws IOException {
-        long fileSize = 0;
+    private long saveFile(URL url, String name) throws IOException {
         File file = new File(folder, name);
-        if (!file.exists()) {
-            BufferedInputStream bis = new BufferedInputStream(url.openStream());
-            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-
-            int b = -1;
-            while ((b = bis.read()) != -1) {
-                bos.write(b);
-                fileSize++;
-            }
-            bis.close();
-            bos.close();
-            imgLoadedEventNotifier.raiseEvent(this, fileSize);
-        }
-        imgProcessedEventNotifier.raiseEvent(this, null);
+        return Files.copy(url.openStream(), file.toPath());
     }
 }

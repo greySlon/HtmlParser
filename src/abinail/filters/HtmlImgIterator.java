@@ -5,6 +5,8 @@ import abinail.model.Content;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -29,7 +31,7 @@ public class HtmlImgIterator implements HtmlIterable<URL> {
     @Override
     public void setAllowed(String allowed) {
         if (filter != null) {
-            this.filter =new ContainStringFilter(allowed).and(filter);
+            this.filter = new ContainStringFilter(allowed).and(filter);
         } else {
             this.filter = new ContainStringFilter(allowed);
         }

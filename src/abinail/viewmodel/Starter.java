@@ -77,7 +77,7 @@ public class Starter {
 
     public void stopAll() {
         stop();
-        poolImg.shutdownNow();
+        if (poolImg != null) poolImg.shutdownNow();
     }
 
     public void saveSitemap(File folderToSave) {

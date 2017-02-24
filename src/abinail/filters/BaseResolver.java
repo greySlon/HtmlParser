@@ -14,26 +14,16 @@ public class BaseResolver {
     private Pattern pattern = Pattern.compile("(?<=<base.{1,20}href[^\"]{1,4}\"\\s{0,3})[^\"]+");
 
     public URL getBaseUrl(Content in) {
-        String content=in.content;
-        URL url=in.url;
-        String s=null;
+        String content = in.content;
+        URL baseUrl = in.url;
 
         Matcher matcher = pattern.matcher(content);
-        if (matcher.find())
-            s = matcher.group();
-        URL baseUrl;
-        if(s!=null){
+        if (matcher.find()) {
+            String s = matcher.group();
             try {
-                baseUrl=new URL(s);
-            } catch (MalformedURLException e) {
-                try {
-                    baseUrl=new URL(url, s);
-                } catch (MalformedURLException e1) {
-                    baseUrl=url;
-                }
+                baseUrl = new URL(baseUrl, s);
+            } catch (MalformedURLException e1) {
             }
-        }else {
-            baseUrl=url;
         }
         return baseUrl;
     }
