@@ -1,15 +1,13 @@
 package abinail.model;
 
-import abinail.interfaces.Notifier;
-import abinail.interfaces.Event;
+import com.odessa_flat.interfaces.Event;
+import com.odessa_flat.interfaces.Notifier;
+import com.odessa_flat.model.Link;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * Created by Sergii on 25.01.2017.

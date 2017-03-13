@@ -1,7 +1,9 @@
 package abinail.viewmodel;
 
-import abinail.interfaces.HtmlExtractor;
+
 import abinail.model.*;
+import com.odessa_flat.interfaces.LinkReader;
+import com.odessa_flat.model.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,11 +24,17 @@ public class Starter {
     LinkExtractor linkExtractor;
     ImgExtractor imgExtractor;
     ImgLoader imgLoader;
+    LinkReader xmlReader;
+    boolean sitemapReady = false;
 
     UIChange uiChange;
 
     public Starter(UIChange uiChange) {
         this.uiChange = uiChange;
+    }
+
+    public boolean isSitemapReady() {
+        return sitemapReady;
     }
 
     public void start(URL url, String dissalowParam, boolean imgLoading) {
@@ -35,16 +43,17 @@ public class Starter {
         linkContainer.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
 
         htmlLoader = new HtmlLoader(linkContainer.getQueueOut());
-        htmlLoader.linkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
+        htmlLoader.LinkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
 
         linkExtractor = new LinkExtractor.Builder(htmlLoader.getContentQueueOut())
                 .enablePassThrough(imgLoading).setDisallowed(dissalowParam).build();
-        linkExtractor.linkFoundEvent.addEventListner(uiChange.linkFoundHandler);
+        linkExtractor.LinkFoundEvent.addEventListner(uiChange.linkFoundHandler);
 
 
         linkContainer.setQueueIn(linkExtractor.getQueueOut());
 
         linkContainer.add(new Link(url));
+        uiChange.linkFoundHandler.eventHandler(this, 1);
 
         poolLink = Executors.newFixedThreadPool(6);
         poolLink.submit(linkExtractor);
@@ -52,18 +61,43 @@ public class Starter {
         for (int i = 0; i < 4; i++) {
             poolLink.submit(htmlLoader);
         }
-
+        sitemapReady = true;
     }
 
-    public void startAll(URL url, String dissalowParam, String matches, File folderToSave) {
-        start(url, dissalowParam, true);
+ /*   public void startFromSitemap() {
+        xmlReader.UniqueEvent.addEventListner(uiChange.addUniqueHandler);
+        xmlReader.LinkFoundEvent.addEventListner(uiChange.linkFoundHandler);
 
+        htmlLoader = new HtmlLoader(xmlReader.getLinkQueue());
+        htmlLoader.LinkProcessedEvent.addEventListner(uiChange.linkProcessedHandler);
+
+
+        poolLink = Executors.newFixedThreadPool(5);
+        poolLink.submit(xmlReader);
+        for (int i = 0; i < 4; i++) {
+            poolLink.submit(htmlLoader);
+        }
+    }*/
+
+    public void startAll(URL url, String dissalowParam, String matches, File folderToSave) {
+ /*       try {
+            xmlReader = new SitemapReader(new URL(url, "sitemap.xml"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (xmlReader == null) {*/
+        start(url, dissalowParam, true);
         imgExtractor = new ImgExtractor.Builder(linkExtractor.getQueuePassThrough()).setAllowed(matches).build();
-        imgExtractor.imgFoundEvent.addEventListner(uiChange.imgFoundHandler);
+        /*} else {
+            startFromSitemap();
+            imgExtractor = new ImgExtractor.Builder(htmlLoader.getContentQueueOut()).setAllowed(matches).build();
+        }*/
+
+        imgExtractor.ImgFoundEvent.addEventListner(uiChange.imgFoundHandler);
 
         imgLoader = new ImgLoader(imgExtractor.getQueueOut(), folderToSave);
-        imgLoader.imgLoadedEvent.addEventListner(uiChange.imgLoadedHandler);
-        imgLoader.imgProcessedEvent.addEventListner(uiChange.imgProcessedHandler);
+        imgLoader.ImgLoadedEvent.addEventListner(uiChange.imgLoadedHandler);
+        imgLoader.ImgProcessedEvent.addEventListner(uiChange.imgProcessedHandler);
 
         poolImg = Executors.newFixedThreadPool(2);
         poolImg.submit(imgExtractor);
@@ -72,12 +106,18 @@ public class Starter {
     }
 
     public void stop() {
-        poolLink.shutdownNow();
+        if (poolLink != null) poolLink.shutdownNow();
+        poolLink = null;
+        htmlLoader = null;
+        linkExtractor = null;
     }
 
     public void stopAll() {
         stop();
         if (poolImg != null) poolImg.shutdownNow();
+        xmlReader = null;
+        imgExtractor = null;
+        imgLoader = null;
     }
 
     public void saveSitemap(File folderToSave) {
@@ -103,5 +143,6 @@ public class Starter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        sitemapReady = false;
     }
 }

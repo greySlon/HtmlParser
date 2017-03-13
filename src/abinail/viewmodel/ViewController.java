@@ -71,7 +71,7 @@ public class ViewController {
 
     void stopLinkProcessing() {
         starter.stop();
-        starter.saveSitemap(folderToSave);
+        if(starter.isSitemapReady())starter.saveSitemap(folderToSave);
     }
 
     void stopImgLoading() {
