@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd" default-lazy-init="true">
+
+  <context:component-scan base-package="com.abinail.crawler"></context:component-scan>
+
+  <bean id="messageQueue" class="java.util.concurrent.ArrayBlockingQueue">
+    <constructor-arg name="capacity" value="200"></constructor-arg>
+  </bean>
+  <!--<bean id="loggerThread" class="java.lang.Thread">-->
+    <!--<constructor-arg name="target" ref="eventLoger"></constructor-arg>-->
+  <!--</bean>-->
+
+<!--  <bean id="messageProvider" class="com.odessa_flat.crawler.models.MessageProviderImpl"
+    scope="prototype"></bean>
+
+  <bean id="uiProvider"
+    class="com.odessa_flat.crawler.models.util_classes.UIMessageProvider" init-method="init">
+    <property name="paramsMessageProvider">
+      <ref bean="messageProvider"></ref>
+    </property>
+    <property name="hostMessageProvider">
+      <ref bean="messageProvider"></ref>
+    </property>
+  </bean>
+
+  <bean id="hostProvider" class="com.odessa_flat.crawler.models.HostProvider">
+    <constructor-arg name="hostNameProvider">
+      &lt;!&ndash;<ref bean="#{uiProvider.getHostMessageProvider()}"></ref>&ndash;&gt;
+      <value>#{uiProvider.getHostMessageProvider()}</value>
+    </constructor-arg>
+  </bean>-->
+
+
+  <!--<bean id="eventConsoleLogger" class="com.odessa_flat.crawler.models.util_classes.EventProcessor">-->
+  <!--<property name="eventBlockingQueue" ref="mq"></property>-->
+  <!--</bean>-->
+  <!--<bean id="urlIterator" class="com.odessa_flat.crawler.models.extractors.HtmlLinkExtractorr">-->
+  <!--<constructor-arg ref="baseResolver"></constructor-arg>-->
+  <!--</bean>-->
+  <!--<bean id="baseResolver" class="com.odessa_flat.crawler.models.BaseResolver">-->
+  <!--<constructor-arg ref="dataTag"></constructor-arg>-->
+  <!--</bean>-->
+  <!--<bean id="dataTag" class="com.odessa_flat.crawler.models.DataTag"></bean>-->
+  <!--<bean id="loader" class="com.odessa_flat.crawler.models.loaders.ContentLoader"></bean>-->
+  <!--<bean id="contentLoader" class="com.odessa_flat.crawler.models.loaders.ContentLoader"></bean>-->
+
+  <!--<bean id="crawler" class="com.odessa_flat.crawler.products.WebSiteCrawler">-->
+  <!--<constructor-arg ref="urlIterator"></constructor-arg>-->
+  <!--<constructor-arg ref="loader"></constructor-arg>-->
+  <!--</bean>-->
+</beans>
